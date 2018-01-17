@@ -1,0 +1,353 @@
+\documentclass[titlepage]{article}
+\usepackage[left=15mm,right=15mm,top=1in,bottom=1in]{geometry}
+\usepackage{framed}
+\usepackage{caption}
+\usepackage{imakeidx}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{array}
+
+\newcolumntype{C}[1]{>{\centering\arraybackslash} m{#1cm}}
+\graphicspath{{./img/}}
+
+\makeindex
+
+\title{\textbf{\Huge{Offer Acceptance Prediction Tool}}\\[20mm]Advanced Optimization Laboratory\\~\\\textbf{\Huge{Requirements Specification}}}
+\author{Eric Le Fort}
+ 
+\begin{document}
+\maketitle
+\tableofcontents
+~\\[15mm]
+\listoftables
+
+
+\vfill
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{| C{3} | C{2} | C{6.5} | C{2.5} |}\hline
+	Date			&Revision \#	&Comments								&Authors\\\hline
+	1-JUN-2017		&0				&- Initial document creation			&Eric Le Fort\\\hline
+	7-JUN-2017		&1				&- Document revision					&Eric Le Fort\newline Michael Liut\\\hline
+	25-AUG-2017		&2				&- Revision midway through development	&Eric Le Fort\\\hline
+\end{tabular}
+\caption{Revision History}
+\label{tab:RevisionHistory}
+\end{table}
+\newpage
+ 
+\section{Introduction}
+\subsection{Project Overview}
+The core of this project involves developing a tool utilizing machine learning which can predict the number of enrolling students given an admission average or the admission average given a target number of enrolling students. Furthermore, developing this system will involve designing, constructing, and populating a database of relevant historic and current data.
+
+\subsection{Product Perspective}
+This section will outline various interfacing requirements as well as memory constraints of the system. Furthermore, it is important to note that this is intended as an improvement or extension of an existing project previously made by AdvOL.
+\subsubsection{System Interfaces}
+This system will require a user-level GUI which provides tools to perform predictions. This web interface will be designed to be compatible with both desktop and mobile devices.
+\subsubsection{Software Interfaces}
+This system must interface internally with its database of applicants. Furthermore, it will also need to interface with libraries which provide machine learning algorithms.
+\subsubsection{Memory Constraints}%TODO define
+UNKNOWN - TO BE DETERMINED
+
+
+\subsection{Description of Operation}
+This section will describe both normal operation and how the system will handle unexpected events.
+\subsubsection{Normal Operation}
+Normal operation will consist of two main phases. The first phase will be training a new prediction model based on past data. This phase will occur as soon as the final data for the previous year is available. During this time, if an old model exists, the user can still access it but should be provided a visual warning that a new model is being trained. During the training phase, the system must first parse the applicant data provided by the university in order to store it in the database. Once it is in the database, the learning algorithm will use that data and available past data to train the system. The most recent year's data will remain for testing and as a control. As testing completes, the system will log the current model's accuracy for future reference.\\~\\
+The second phase will consist of using the trained model to predict results for the coming year. This will involve taking in either the target quantity of offers accepted or the minimum average desired and returning the expected value of the opposite parameter as determined by the trained model.
+\subsubsection{Error Handling}
+The main source of error in this project will arise while training the prediction model. If the prediction model is not able to converge to within its acceptable margin of error, this error should be logged in detail and a developer must work to modify the learning algorithm as necessary. The same type of process should be followed if the dimensionality reduction algorithm is unable to successfully reduce the dataset to within a reasonable feature count.\\~\\
+Another source of error will be due to the format of new data. This is an issue since this application has no control over the format of the data it is provided. In the case of an error of this nature, the error should be logged and a notification should be sent out to the developer indicating that they should check the error logs.\\~\\
+In the case of either type of error, a warning should be shown on the GUI to make the user aware that the new data has not been added or that the model might not be accurate.
+
+\subsection{Naming Conventions \& Definitions}
+This section outlines the various definitions, acronyms, and abbreviations that will be used throughout this document in order to familiarize the reader prior to reading.
+\subsubsection{Definitions}
+Table \ref{tab:Definitions} lists the definitions used in this document. The definitions given below are specific to this document and may not be identical to definitions of these terms in common use. The purpose of this section is to assist the user in understanding the requirements for the system.
+\begin{table}[h!]
+\centering
+\caption{Definitions}
+\begin{tabular}{| C{5} | C{10} |}\hline
+	\textbf{Term}	&\textbf{\centering Meaning}\\\hline
+	Dimensionality Reduction Algorithm	&This refers to an algorithm which selects a set of combined features which capture most of the variance of the data in an attempt to minimize the dimensionality of the feature space.\\\hline
+	Availability Level	&The percentage of time a system is available.\\\hline
+	Machine Learning Algorithm	&Any algorithm which uses past data in order to train a model to predict future data.\\\hline
+	Prediction Model	&A model built from a set of known information that can be used to predict a future event.\\\hline
+	Train	&The process of fine-tuning a prediction model using a machine learning algorithm based on past data.\\\hline
+	Testing Data	&Past data set aside to test the prediction model. This dataset must not overlap with the data used for training.\\\hline
+	Training Data	&Past data set aside to train the prediction model. This dataset must not overlap with the data used for testing.\\\hline
+\end{tabular}
+\label{tab:Definitions}
+\end{table}
+
+\subsubsection{Acronyms \& Abbreviations}
+Table \ref{tab:Acronyms} lists the acronyms and abbreviations used in this document.
+\begin{table}[h!]
+\centering
+\caption{Acronyms and Abbreviations}
+\begin{tabular}{| C{4} | C{8} |}\hline
+	\textbf{Acronym/Abbreviation}	&\textbf{Meaning}\\\hline
+	AdvOL							&Advanced Optimization Laboratory\\\hline
+	GUI								&Graphical User Interface\\\hline
+	EOAPT							&Engineering Offer Acceptance Prediction Tool\\\hline
+	IRA								&Office of Institutional Research and Analysis\\\hline
+	VPN								&Virtual Private Network\\\hline
+	KPCA							&Kernel Principal Component Analysis\\\hline
+	MIS								&Module Interface Specification\\\hline
+	MID								&Module Internal Design\\\hline
+\end{tabular}
+\label{tab:Acronyms}
+\end{table}
+
+\section{Project Drivers}
+\subsection{The Purpose of the Project}
+The purpose of this project is to predict the amount of individuals that will accept an offer of enrolment from McMaster University in the faculty of engineering given an admission average or the admission average given a number of enrolling students. This tool will greatly assist the Dean's office in deciding what the minimum required grade average for candidates should be.
+\subsection{Clients, Customers, and Other Stakeholders}
+The client for this project is the Dean of Engineering, Dr. Ishwar Puri, and Assistant Dean, Maria White, for the faculty of engineering at McMaster University.\\~\\
+Future customers will include the admission departments for the rest of McMaster University.\\~\\
+Stakeholders of this project include the faculty of engineering and the department of admissions at McMaster University as well as the IRA, AdvOL, and applicants to the programs hosted by McMaster University.
+
+
+
+\section{Project Constraints}
+These are the constraints that are necessary for the operation and development of this program:
+\begin{itemize}
+	\item All identifying data must remain confidential and protected.
+	\item The application cycle must be adhered to.
+\end{itemize}
+\subsection{Scope}
+The scope of this project will currently only take into account students entering either the co-op or non-co-op engineering programs. Further prediction models would have to be introduced in order to support other programs as well. The only data used will be that which is provided to AdvOL by the university (i.e. the team will not work on gathering its own  data).
+\subsection{Relevant Facts \& Assumptions}
+This section will outline various facts and assumptions that will be leveraged in the design of this system.
+\subsubsection{Facts}
+\begin{itemize}
+	\item[-] The format of data of previous years.
+	\item[-] There will be unknowable underlying data that is important to an applicant's final choice.
+	\item[-] This model will not account for factors such as political, environmental, or personal influences.
+\end{itemize}
+\subsubsection{Assumptions}
+\begin{itemize}
+	\item[-] Future data formats will not deviate that far from past formats.
+	\item[-] Rates of grade inflation will be predictable.
+	\item[-] Recent applicants are more similar to current applicants than less recent ones.%Am I actually assuming this though?
+\end{itemize}
+
+
+
+\section{Requirements}
+The following section outlines the various requirements of this system. For each requirement, a description of the requirement, the rationale behind the requirement, and a fit criterion for when the requirement will be satisfied are provided. The values given for customer satisfaction and dissatisfaction are from 0-5. The values for requirement priority are either high, medium or low. All high priority requirements are necessary for the system to be functional. Failing to meet too many medium priority requirements may result in considering the system unsatisfactory. Low priority requirements would be nice to have but are not mission critical.
+\subsection{Functional Requirements}
+The following is a collection of the functional requirements of this system:
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 1\hfill \textbf{Requirement Type}: F\hfill\\\\
+	\noindent\textbf{Description}: The system must be able to add applicant data to the database.\\
+	\textbf{Fit Criterion}: New data is added in large batches in a way that is not time consuming and there is no data missing or inputted incorrectly.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 1\hfill \textbf{Customer Dissatisfaction}: 5\hfill\\
+	\textbf{Priority}: HIGH \hfill \textbf{Conflicts}: None\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 2\hfill \textbf{Requirement Type}: F\hfill\\\\
+	\noindent\textbf{Description}: The system should be able to perform the dimensionality reduction algorithm on the full dataset.\\
+	\textbf{Fit Criterion}: The features automatically selected maximize the variance in the data using twenty or fewer features.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 1\hfill \textbf{Customer Dissatisfaction}: 1\hfill\\
+	\textbf{Priority}: MEDIUM \hfill \textbf{Conflicts}: P1, P3\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 3\hfill \textbf{Requirement Type}: F\hfill\\\\
+	\noindent\textbf{Description}: The system must be able to train and re-train the prediction model as necessary.\\
+	\textbf{Fit Criterion}: The system can train a prediction model given at least one year of data.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 2\hfill \textbf{Customer Dissatisfaction}: 5\hfill\\
+	\textbf{Priority}: HIGH \hfill \textbf{Conflicts}: OE2\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 4\hfill \textbf{Requirement Type}: F\hfill\\\\
+	\noindent\textbf{Description}: The system must be able to predict the quantity of accepted offers based on a given minimum grade average.\\
+	\textbf{Fit Criterion}: The system can predict the quantity of accepted offers based on a given minimum grade average.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 5\hfill \textbf{Customer Dissatisfaction}: 5\hfill\\
+	\textbf{Priority}: HIGH \hfill \textbf{Conflicts}: None\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 5\hfill \textbf{Requirement Type}: F\hfill\\\\
+	\noindent\textbf{Description}: The system must be able to predict the minimum grade average required based on a given target quantity of accepted offers.\\
+	\textbf{Fit Criterion}: The system can predict the minimum grade average required based on a given target quantity of accepted offers.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 5\hfill \textbf{Customer Dissatisfaction}: 5\hfill\\
+	\textbf{Priority}: HIGH \hfill \textbf{Conflicts}: None\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 6\hfill \textbf{Requirement Type}: F\hfill\\\\
+	\noindent\textbf{Description}: The system must cache previous prediction results to minimize the computation time of subsequent requests.\\
+	\textbf{Fit Criterion}: After any prediction is performed, the system caches that result. Also, if a cached result is available, the system uses that result.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 1\hfill \textbf{Customer Dissatisfaction}: 3\hfill\\
+	\textbf{Priority}: LOW \hfill \textbf{Conflicts}: None\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+\newpage
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 7\hfill \textbf{Requirement Type}: F\hfill\\\\
+	\noindent\textbf{Description}: The system must clear the cache of previous prediction results when they are no longer valid (i.e. the prediction model or data is altered). This requirement is contingent on requirement 7 being implemented.\\
+	\textbf{Fit Criterion}: When a new user model is trained, the cache has been cleared.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 1\hfill \textbf{Customer Dissatisfaction}: 5\hfill\\
+	\textbf{Priority}: HIGH \hfill \textbf{Conflicts}: None\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 8\hfill \textbf{Requirement Type}: F\hfill\\\\
+	\noindent\textbf{Description}: The system must perform previously unperformed predictions for various input parameters while the system is idle. This will maximize the responsiveness of the system to user requests.\\
+	\textbf{Fit Criterion}: If idle for an hour, the system begins performing previously unperformed predictions.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 3\hfill \textbf{Customer Dissatisfaction}: 2\hfill\\
+	\textbf{Priority}: LOW\hfill \textbf{Conflicts}: None\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 9\hfill \textbf{Requirement Type}: F\hfill\\\\
+	\noindent\textbf{Description}: The system must allow the user to interactively choose their input parameter type (minimum grade average or target acceptance quantity) and corresponding value.\\
+	\textbf{Fit Criterion}: The user interface allows dynamic selection of input parameter type.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 5\hfill \textbf{Customer Dissatisfaction}: 5\hfill\\
+	\textbf{Priority}: HIGH \hfill \textbf{Conflicts}: None\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+\newpage
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 10\hfill \textbf{Requirement Type}: F\hfill\\\\
+	\noindent\textbf{Description}: The system must visually display results of the prediction to the user.\\
+	\textbf{Fit Criterion}: The user interface displays results of the prediction.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 5\hfill \textbf{Customer Dissatisfaction}: 4\hfill\\
+	\textbf{Priority}: HIGH \hfill \textbf{Conflicts}: None\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}~\\[6mm]
+
+
+\subsection{Non-Functional Requirements}
+The following is a collection of the non-functional requirements of this system:
+\subsubsection{Usability \& Humanity Requirements}
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 1\hfill \textbf{Requirement Type}: UH\hfill\\\\
+	\noindent\textbf{Description}: The GUI must be simple to use.\\
+	\textbf{Fit Criterion}: This requirement will be considered satisfied if a user without training can perform a usage scenario within 1 minute of being introduced to it.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 5\hfill \textbf{Customer Dissatisfaction}: 3\hfill\\
+	\textbf{Priority}: LOW \hfill \textbf{Conflicts}: None\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+\newpage
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 2\hfill \textbf{Requirement Type}: UH\hfill\\\\
+	\noindent\textbf{Description}: The information provided to the user must be straightforward and require minimal interpretation.\\
+	\textbf{Fit Criterion}: This requirement will be considered satisfied if a user not familiar with the system or the specific context is able to understand all information the interface provides.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 5\hfill \textbf{Customer Dissatisfaction}: 5\hfill\\
+	\textbf{Priority}: LOW \hfill \textbf{Conflicts}: None\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+
+\subsubsection{Performance Requirements}
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 1\hfill \textbf{Requirement Type}: P\hfill\\\\
+	\noindent\textbf{Description}: The prediction model must be able to be trained quickly to handle new data.\\
+	\textbf{Fit Criterion}: This requirement will be considered satisfied if the prediction model can train within a day using modest computing resources.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 2\hfill \textbf{Customer Dissatisfaction}: 3\hfill\\
+	\textbf{Priority}: MEDIUM \hfill \textbf{Conflicts}: F3, P3\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 2\hfill \textbf{Requirement Type}: P\hfill\\\\
+	\noindent\textbf{Description}: The system must be able to provide results quickly in order to allow the user to experiment with different inputs.\\
+	\textbf{Fit Criterion}: This requirement will be considered satisfied if the system performs its predictions, using a trained prediction model, within 10 seconds of a user's request.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 4\hfill \textbf{Customer Dissatisfaction}: 5\hfill\\
+	\textbf{Priority}: MEDIUM \hfill \textbf{Conflicts}: MS1, MS2\hfill\\\\ 
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+\newpage
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 3\hfill \textbf{Requirement Type}: P\hfill\\\\
+	\noindent\textbf{Description}: The system must provide accurate predictions.\\
+	\textbf{Fit Criterion}: This requirement will be considered satisfied if the maximum error between predicted and actual acceptance is no more than 5\%.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 5\hfill \textbf{Customer Dissatisfaction}: 5\hfill\\
+	\textbf{Priority}: MEDIUM \hfill \textbf{Conflicts}: F3, P1\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+
+\subsubsection{Operational \& Environmental Requirements}
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 1\hfill \textbf{Requirement Type}: OE\hfill\\\\
+	\noindent\textbf{Description}: The system must minimize client-side demand.\\
+	\textbf{Fit Criterion}: This requirement will be considered satisfied if a low-tier smartphone (i.e. a phone released about 5 years ago) is able to handle any client-side computational demand of this system without a noticeable performance penalty (a half second or longer delay) as compared to a more high-end device.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 3\hfill \textbf{Customer Dissatisfaction}: 5\hfill\\
+	\textbf{Priority}: LOW \hfill \textbf{Conflicts}: None\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 2\hfill \textbf{Requirement Type}: OE\hfill\\\\
+	\noindent\textbf{Description}: The system must be available for the user as often as possible.\\
+	\textbf{Fit Criterion}: This requirement will be considered satisfied if the system is able to achieve an availability level of 99.5\%.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 3\hfill \textbf{Customer Dissatisfaction}: 5\hfill\\
+	\textbf{Priority}: LOW \hfill \textbf{Conflicts}: F4\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+\newpage
+
+\subsubsection{Maintainability \& Support Requirements}
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 1\hfill \textbf{Requirement Type}: MS\hfill\\\\
+	\noindent\textbf{Description}: New data will be added every year as new applicants apply. The system should be able to integrate this new data into the database. This is important since the product will likely outlive the development team.\\
+	\textbf{Fit Criterion}: This requirement will be considered satisfied if the system can handle the current range of input data.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 1\hfill \textbf{Customer Dissatisfaction}: 1\hfill\\
+	\textbf{Priority}: MEDIUM \hfill \textbf{Conflicts}: None\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+
+\subsubsection{Security \& Safety Requirements}
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 1\hfill \textbf{Requirement Type}: S\hfill\\\\
+	\noindent\textbf{Description}: The system should be accessible by any approved user with VPN access to the internet.\\
+	\textbf{Fit Criterion}: If the system is online, any user with the necessary permissions is granted access.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 1\hfill \textbf{Customer Dissatisfaction}: 5\hfill\\
+	\textbf{Priority}: HIGH\hfill \textbf{Conflicts}: P2\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 2\hfill \textbf{Requirement Type}: S\hfill\\\\
+	\noindent\textbf{Description}: The system must not be accessible by any unapproved user.\\
+	\textbf{Fit Criterion}: If an unauthorized user attempts to access the system, their request is denied.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 1\hfill \textbf{Customer Dissatisfaction}: 1\hfill\\
+	\textbf{Priority}: HIGH \hfill \textbf{Conflicts}: P2\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+\newpage
+
+\subsubsection{Legal Requirements}
+\begin{framed}
+	\noindent\textbf{Requirement \#}: 1\hfill \textbf{Requirement Type}: L\hfill\\\\
+	\noindent\textbf{Description}: The system must adhere to all applicable data governance laws it falls under.\\
+	\textbf{Fit Criterion}: The system adheres to all applicable data governance laws it falls under.\\\\
+	\textbf{Originator}: Eric Le Fort\\\\
+	\noindent\textbf{Customer Satisfaction}: 1\hfill \textbf{Customer Dissatisfaction}: 1\hfill\\
+	\textbf{Priority}: HIGH \hfill \textbf{Conflicts}: None\hfill\\\\
+	\noindent\textbf{History}: Created 1-JUN-2017
+\end{framed}
+
+\end{document}
+
