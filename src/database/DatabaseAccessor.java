@@ -13,8 +13,8 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 /**
- * This class handles database operations such as querying and adding data to the applicant database. This includes
- * handling prevention of SQL injection attacks.
+ * This class handles database operations such as querying and adding data to the applicant database.
+ * This includes handling prevention of SQL injection attacks.
  * 
  * @author Eric Le Fort
  * @version 0.0.1
@@ -56,8 +56,8 @@ public abstract class DatabaseAccessor{
 	}
 	
 	/**
-	 * Queries the database for all applicant data from the most recent year. The format of the returned array will
-	 * be the same as that in <code>query(int)</code>.
+	 * Queries the database for all applicant data from the most recent year. The format of the returned
+	 * array will be the same as that in <code>query(int)</code>.
 	 * 
 	 * @return A 2-D <code>String</code> array containing the applicant data queried.
 	 */
@@ -325,7 +325,8 @@ public abstract class DatabaseAccessor{
 	}//queryAll()
 	
 	/**
-	 * Parses the applicant data contained by a given .csv file into the database for the year specified.<br><br>
+	 * Parses the applicant data contained by a given .csv file into the database for the year specified.
+	 * <br><br>
 	 * 
 	 * The .csv file should follow the format (shown in separate lines for easy viewing,
 	 * all this data should be on the same line): <br><br>
