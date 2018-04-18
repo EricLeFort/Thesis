@@ -1,25 +1,22 @@
 #!/usr/local/bin/python2
-
-import numpy as np
-from sklearn.naive_bayes import GaussianNB
-
 from utilities import *
-
-#Pseudorandom seed made by mashing my keyboard
-seed = 235945778
-np.random.seed(seed)
+import models
 
 #Load data
-x_train, y_train, x_test, y_test = load(year=15)
+x_train, y_train, x_test, y_test = load(year=15, kpca=True)
 
 #Define model
-model = GaussianNB()
+model = models.naiveBayesModel()
 
 #Train and test model
 class_pred, confusion, t_train, t_test = train_and_test(model, x_train, y_train, x_test, y_test)
+pred = model.predict_proba(x_test)[:,1]
 
 #Display results
-display_results(t_train, t_test, confusion, model.predict_proba(x_test)[:,1])
+display_results(t_train, t_test, confusion, pred)
 
-#Plot ROC curve
-plot_roc_curve("Naive Bayes", "naive_bayes_ROC", class_pred, model.predict_proba(x_test)[:,1], y_test)
+#Plot diagrams
+plot_roc_curve("Naive Bayes", "naive_bayes", class_pred, pred, y_test)
+plot_prediction_histogram("Naive Bayes", "naive_bayes", pred)
+
+#Naive Bayes went from an unusable 74.93% to 95.59% using KPCA

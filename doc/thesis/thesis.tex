@@ -1,9 +1,26 @@
 \documentclass[titlepage]{article}
-\usepackage{lastpage}
 \usepackage{mathtools}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{titlesec}
+\usepackage{titletoc}
 \usepackage[backend=bibtex]{biblatex}
+\usepackage{array}
+\usepackage{lastpage}
+
+\usepackage{graphicx}
+\usepackage{svg}
+\usepackage{subfig}
+\graphicspath{{../../resources/}}
+
+\usepackage{geometry}
+\geometry{
+   verbose,
+   tmargin=2.5cm,
+   bmargin=2.5cm,
+   lmargin=2.5cm,
+   rmargin=2.5cm
+}
 
 \addbibresource{ref.bib}
 
@@ -12,6 +29,8 @@
 \DeclareMathOperator*{\argmax}{argmax}
 \DeclareMathOperator{\sgn}{sgn}
 \newcommand{\norm}[1]{\lvert\lvert #1 \rvert\rvert}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{L}[1]{>{\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 
 \title{
 	AN EMPIRICAL STUDY OF MACHINE LEARNING ALGORITHMS\\[20mm]
@@ -19,25 +38,29 @@
 	\large A Thesis Submitted to the School of Graduate Studies in Partial Fulfilment of the Requirements for the Degree Master of Applied Science\\[20mm]
 	McMaster University \copyright~Copyright by Eric Le Fort, April 2018
 }\date{}
-\pagenumbering{roman}
 
 
 
 \begin{document}
+\pagenumbering{roman}
 \maketitle\normalsize\setcounter{page}{2}
-\noindent McMaster University MASTER OF APPLIED SCIENCE (2018) Hamilton, \mbox{Ontario} (Machine Learning)\\[10mm]
-TITLE: An Empirical Look at the Accuracy and Performance of Various \mbox{Machine} Learning Algorithms\\
+\noindent McMaster University MASTER OF APPLIED SCIENCE (2018) Hamilton, Ontario (Machine Learning)\\[10mm]
+TITLE: An Empirical Study of Machine Learning Algorithms\\
 AUTHOR: Eric Le Fort, B.ENG. (McMaster University)\\
-SUPERVISOR: Professor Antoine Deza\\
-NUMBER OF PAGES: \pageref{LastPage}%, TODO add base 10 as well
-
-\newpage
-\section{Abstract}%TODO
+SUPERVISOR: Professor Antoine Deza and Professor Frantisek Franek\\
+NUMBER OF PAGES: \pageref{LastPage}
 
 
 
 \newpage
-\section{Acknowledgements}%TODO Thank Dr. Antoine Deza, Dr. Franya Frantisek, Chris, Mom, Jack, Nana
+\section{Abstract}
+The selection of machine learning algorithm used to solve a problem is an important choice. This paper outlines research measuring three performance metrics for eight different algorithms on a real-world dataset. The algorithms that were tested are k-nearest neighbours, decision trees, random forests, gradient tree boosting, logistic regression, naive bayes, support vector machines, and artificial neural networks. These algorithms were compared in terms of accuracy, training time, and execution time.
+
+
+
+\newpage
+\section{Acknowledgements}
+Firstly I'd like to thank my mom, her boyfriend Jack, and my grandmother for continually going out of their way to provide me with a stable environment conducive to my success. Next I'd like to thank Chris McDonald and Guy Meyer for proofreading this thesis as well as offering their advice and friendship. Finally, I'd also like to thank my supervisors, Dr. Antoine Deza and Dr. Frantisek Franek for their invaluable guidance.
 
 
 
@@ -48,24 +71,15 @@ NUMBER OF PAGES: \pageref{LastPage}%, TODO add base 10 as well
 
 
 
-%TODO locate [CITATION-NEEDED] throughout and provide adequate citations 
 \newpage
-\section{Introduction}%TODO
-%TODO Describe problem
-%Talking points:
-%Motivation for this thesis
-%Define the problem itself (light detail)
-%	- A description of the problem and the goal of analysis
-%	- The nature of the data
-%	-
-%Define some of the approach -- specifically how KPCA will be used to give all algorithms a "fighting chance" in the accuracy arena
-%What aspects of performance we will be analyzing (training time, classification time, model size)
-%What aspects of accuracy we will be analyzing (confusion matrices)
-%Should I be discussing previous work?
+\pagenumbering{arabic}
+\section{Introduction}
+Picking the best machine learning algorithm for a problem is of paramount importance; choosing the correct one can be the difference between the success and failure of a project. The goal of this research is to better define the differences between eight classical machine learning techniques. This knowledge can then assist machine learning practitioners in making their decision. The task used to test these techniques is using Ontario Universities' Application Centre (OUAC) application data to predict which applicants will accept an offer of admission to a particular university. The techniques that will be analyzed are k-nearest neighbours, decision trees, random forests, gradient tree boosting, logistic regression, naive bayes, support vector machines, and artificial neural networks. The performance metrics that will be measured are the final model's accuracy, training time and execution time.\\
+In addition to the information regarding performance metrics, this paper will also act as a consolidated resource of the mathematical specifications of the algorithms discussed. This analysis takes advantage of an excellent machine learning library written for Python -- Scikit-Learn \cite{scikit-learn}. This library is commonly used among practitioners which should ensure the relevancy of the results herein.
 
 
 
-%KPCA will be applied to: logistic regression, K-Nearest Neighbours, Naive Bayes...
+\newpage
 \section{Algorithms}
 Since a wide range of different machine learning algorithms will be discussed in this paper, it is prudent that those algorithms first be described. This section will go into detail regarding the mathematic mechanics of each of these algorithms. In addition, some of the known strengths and weaknesses of each algorithm will also be discussed.
 
@@ -82,7 +96,7 @@ Projecting a new point, $x$, along the principal components can be accomplished 
 $$V^k \cdot \Phi(x) = \sum\limits_{i=1}^M \alpha_i^k f_k(x_i, x)$$
 
 \subsection{K-Nearest Neighbours}
-K-Nearest Neighbours ($k$-NN) is a relatively simple classification or regression algorithm. When a new data point is introduced, its technique is to first locate the $k$ closest data points from the training dataset and then use the class of each of those points to determine the class of the unknown data point.\\
+K-Nearest Neighbours (k-NN) is a relatively simple classification or regression algorithm. When a new data point is introduced, its technique is to first locate the $k$ closest data points from the training dataset and then use the class of each of those points to determine the class of the unknown data point.\\
 The distance of these points can be calculated using any one of several distance metrics. In this analysis, the chosen distance metric is the Euclidean distance and a weighted version of majority voting is used to predict the unknown class.\\
 This algorithm has a few important strengths including being simple to implement, flexible to feature and distance metric choices, handling multi-class problems naturally, and most importantly, it is quite accurate given a large, representative training set \cite{KNN}. However, this algorithm has some significant flaws as well. Most importantly, since this is a lazy algorithm (work is only performed when an unknown data point is to be classified), it can be resource intensive in deployment. Every time a new point is to be classified, there is a large search problem through the full training set which must be solved to find the nearest neighbours. Another difficulty of this algorithm is selecting a meaningful distance function \cite{KNN}. It is possible to mislead the algorithm if the function does not accurately reflect the similarity between points.\\
 Given a classified point $p$, and an unknown point $u$ with $n$ features, the euclidean distance between them is calculated as \cite{KNN}: 
@@ -94,7 +108,6 @@ Note that the square brackets are denoting the Iverson bracket. This term goes t
 \subsection{Decision Tree Learning}
 Decision tree learning is another regression or classification algorithm. Starting with a root node containing the full training dataset, the learning phase of this algorithm works to decide how to split the data based on the value of one of the features. These splits are meant to homogenize the child nodes' data as much as possible until a stopping condition is reached. The algorithm determines the class for each leaf node as the mean class of its members \cite{Gini-Index}.\\
 The two main splitting criteria to choose from are the Gini Impurity criterion or the Information Gain criterion. As discussed in \cite{Gini-Index}, both criteria are often equally accurate and so the selection shall be based on computational complexity. In this work the Gini Impurity criterion was selected since it only requires squaring a term compared to computing a logarithm for Information Gain.\\
-The last step to consider is pruning. Since decision tree learning is a greedy algorithm, it is possible that it made splits that are not necessary in the larger picture. In simple terms, the process of pruning involves analyzing the leaf nodes and removing any that provide negative returns when seen from the root.\\
 One of the largest benefits of this algorithm is the ease of comprehension of its models -- even a human could make a prediction using the final tree. Other benefits include its resiliency to noise and outliers \cite{DecisionTreeOG} which warrants less data cleaning, its ability to handle both numeric and categoric values naturally, and having the freedom of being non-parametric \cite{DecisionTreeNonPara}. On the other hand, the two biggest shortcomings of this algorithm is its tendency to overfit \cite{DecisionTreeOG} and not being suitable for continuous variables \cite{DecisionTreeOG}. Luckily, there are some tricks which can help avoid the former such as limiting the maximum depth of the tree or the minimum subpopulation size to consider splitting a node.\\
 The Gini Impurity for a dataset, $I_G(p)$, of $J$ classes where $p_i$ is the percentage of points with class $i$ in the dataset is calculated as \cite{Gini-Index}:
 $$I_G(p) = 1 - \sum\limits_{i=1}^J p_i^2$$
@@ -102,7 +115,11 @@ The split with the lowest Gini Impurity will be chosen.
 
 \subsection{Random Forest Learning}
 Random forest learning is an ensemble learning method. During training, many decision trees are constructed, each with random subsets of the feature space. An unknown data point is classified by classifying the point using each decision tree and then taking the majority vote \cite{RandomForestOG}.\\
-Random Forest inherits most of the benefits of decision trees at the cost of losing much of the ease of comprehension associated with singular decision trees. Another significant advantage is its ability to handle very large, high-dimensional datasets \cite{RandomForestHighDim}. This study will mainly focused on supervised learning, however it is important to note that this algorithm is also useful for unsupervised learning. Other than the loss of comprehension, another drawback is that the time to train random forests is significantly longer than singular decision trees.
+Random forest inherits most of the benefits of decision trees at the cost of losing some of the ease of comprehension associated with singular decision trees. Another significant advantage is its ability to handle very large, high-dimensional datasets \cite{RandomForestHighDim}. This study will mainly focused on supervised learning, however it is important to note that this algorithm is also useful for unsupervised learning. Other than the loss of comprehension, another drawback is that the time to train random forests is significantly longer than singular decision trees.
+
+\subsection{Gradient Tree Boosting}
+Gradient Tree Boosting is another ensemble learning method based on decision trees. Boosting is a generalized approach which approximates the underlying prediction function by using base learners which, in the case of gradient tree boosting, are decision trees \cite{gradientBoostingOG}. At each iteration, the new base learner fits the residual prediction error of the additive model created using the current collection of base learners. This new learner is then added to the collection of base learners \cite{gradientBoostingOG}.\\
+As with random forest, gradient tree boosting loses some of the ease of comprehension associated with singular decision trees. This algorithm is also prone to overfitting the data if too many learners are trained \cite{gradientBoostingDetails}. One of the largest benefits of this technique is that its models have shown to reduce both variance and bias \cite{gradientBoostingDetails}.
 
 \subsection{Logistic Regression}
 Logistic Regression is a binary classification algorithm. This algorithm starts from random initial parameters and then using the loss function defined below it works to continually decrease its error rate. This allows the algorithm to learn the parameters which best separate the dataset.\\
@@ -119,7 +136,7 @@ Training is terminated when some stopping criteria is reached.
 \subsection{Naive Bayes Classifiers}
 Naive Bayes Classifiers are a type of multi-class classification algorithm based on Bayes' theorem (described below) with an assumption of independence among features. The assumption of independence is the source of the term ``Naive'' in its title \cite{NaiveBayesOG}. Since this algorithm typically depends on bucketing, it is often used with discrete features although with some work it can also handle continuous ones. This is achieved by replacing raw probabilities by modelling Probability Density Functions (PDFs) based on the appropriate type of distribution for the feature \cite{NaiveBayesOG}. Another simpler alternative is simply grouping the feature into discrete buckets and using those buckets for the analysis.\\
 If the feature is discrete, the next step is creating a frequency table which counts the occurrences of each class for all possible values of the feature. From this table one can go further and create a likelihood table for each feature which computes the probability of positive outcomes given the value of the feature from the frequency table. Lastly, the total probability of each class for the full dataset must also be calculated. With all this in place, Bayes' theorem allows the algorithm to determine the likelihood of a new data point being a member of a certain class \cite{NaiveBayesOG}.\\
-The Naive Bayes Algorithm has a couple main benefits that make it extremely useful in many practical applications. Specifically, its natural handling of multi-class problems and speed of prediction which can make it a great choice for real-time systems. On the other hand, Naive Bayes also has two potential flaws. Specifically, its reliance on the validity of the assumption that there is independence between features and being a ``bad estimator'' \cite{NaiveBayesEstimator}. The later just means that the actual probabilities it outputs should not be taken too literally. If these pitfalls are carefully considered before implementation Naive Bayes can still be a very strong algorithm.\\
+The Naive Bayes Algorithm has a couple main benefits that make it extremely useful in many practical applications. Specifically, its natural handling of multi-class problems and speed of prediction which can make it a great choice for real-time systems. On the other hand, Naive Bayes also has two potential flaws. Specifically, its reliance on the validity of the assumption that there is independence between features and being a ``bad estimator'' \cite{NaiveBayesEstimator}. The latter just means that the actual probabilities it outputs should not be taken too literally. If these pitfalls are carefully considered before implementation Naive Bayes can still be a very strong algorithm.\\
 Given a class, $y$, and a feature, $x$, Bayes' Theorem is defined as \cite{NaiveBayesOG}:
 $$\Pr(y \vert x) = \frac{\Pr(x \vert y) \cdot \Pr(y)}{\Pr(x)}$$
 Classification is performed using the following formula where $y^*$ is the predicted class, $C$ is the set of possible classes, and $n$ is the number of features \cite{NaiveBayesOG}:
@@ -146,8 +163,8 @@ The decision function is then \cite{SVM}:
 $$\sgn(w \cdot x - b)$$
 
 \subsection{Artificial Neural Networks}
-Artificial Neural Networks (ANNs) are a regression or classification model inspired by biological neural networks. There are numerous variations of these types of systems but this analysis will deal with a relatively simple variant: multilayer perceptron (MLP). The first step in this algorithm is defining the structure of the network. This includes the number of hidden layers, the number of nodes in each layer and the activation function associated with each of the nodes. Once the architecture has been defined, it is common to initialize the weights of the connections randomly before entering the training phase \cite{AnnInit}. Training involves feeding training data forward through the network (forward-propagation) in batches and then performing backward-propagation. The backward-propagation step updates the weights of the connections in order to minimize the error in relation to the previous batch that was fed through the network \cite{AnnSpec}. Several hyper-parameters are defined which define the process of training and can affect everything from the time to train to how accurate the final model is. These hyper-parameters include the rate of training, the size of the batches, momentum, and more \cite{AnnSpec}. Once training is complete, predictions are performed using the result of forward-propagating the features of the unknown sample through the trained model.\\
-It is fairly well-known that there are many persuasive arguments in favour of ANNs including their impressive track record of solving a variety of problems in industry. They have also been extensively researched over the past several years and there are various neural network libraries available in a variety of languages. On the other hand, they also have some frequently overlooked flaws. For one, the training process necessitates tuning several problem-specific hyper-parameters in a trial-and-error process before good models are obtained. The length of training itself can also be quite extensive and the cost of computing resources can become a non-trivial consideration. Further, although there has been a significant push in this area, ANNs are still largely a black box which leads to difficulties in predicting whether the model will generalize well.\\
+Artificial Neural Networks (ANNs) are a regression or classification model inspired by biological neural networks. There are numerous variations of these types of systems but this analysis will deal with a relatively simple variant: multilayer perceptron (MLP). The first step in this algorithm is defining the structure of the network. This includes the number of hidden layers, the number of nodes in each layer and the activation function associated with each of the nodes. Once the architecture has been defined, it is common to initialize the weights of the connections randomly before entering the training phase \cite{AnnInit}. Training involves feeding training data forward through the network (forward-propagation) in batches and then performing backward-propagation. The backward-propagation step updates the weights of the connections in order to minimize the error in relation to the previous batch that was fed through the network \cite{AnnSpec}. Several hyperparameters are defined which define the process of training and can affect everything from the time to train to how accurate the final model is. These hyperparameters include the rate of training, the size of the batches, momentum, and more \cite{AnnSpec}. Once training is complete, predictions are performed using the result of forward-propagating the features of the unknown sample through the trained model.\\
+It is fairly well-known that there are many persuasive arguments in favour of ANNs including their impressive track record of solving a variety of problems in industry. They have also been extensively researched over the past several years and there are various neural network libraries available in a variety of languages. On the other hand, they also have some frequently overlooked flaws. For one, the training process necessitates tuning several problem-specific hyperparameters in a trial-and-error process before good models are obtained. The length of training itself can also be quite extensive and the cost of computing resources can become a non-trivial consideration. Further, although there has been a significant push in this area, there is a significant lack of understanding in how ANNs actually perform their predictions which leads to difficulties in judging whether the model will generalize well.\\
 ANNs have an input layer of which the values of the nodes are defined by the input into the model. The inputs to the other layers are computed using the propagation function, $p_j(t)$, where $i$ iterates over the set of nodes connected to node $j$, $o_i$ is the output from node $i$, $w_{ij}$ is the weight of the connection between node $i$ and node $j$, and $t$ is the current time step \cite{AnnMath}:
 $$p_j(t) = \sum\limits_i o_i(t)w_{ij}$$
 The output from node $i$ is computed using some output function, $f_{out}$, and the activation of the node, $a_i(t)$, as \cite{AnnMath}:
@@ -160,36 +177,349 @@ The result of $\frac{\partial C}{\partial w_{ij}}$ depends on the activation fun
 
 
 
+\newpage
 \section{Method}
-This section addresses important details about the implementation of the algorithms being compared as well as the data these models are operating on. A description of these details is crucial in order to fully illustrate the fairness and therefore the usability of the final conclusions. Specifically, this section will define the initial problem statement, general traits of the data, preparatory data transformations performed for each algorithm if there were any, how the algorithm's parameters were fine-tuned, and any other important implementation details.
+This section addresses important details about the implementation of the algorithms being compared as well as the data these models are operating on. A description of these details is crucial in order to fully illustrate the fairness, and therefore the usability, of the final conclusions. Specifically, this section will define the initial problem statement, general traits of the data, preparatory data transformations performed for each algorithm (if any), how the algorithm's parameters were fine-tuned, and any other important implementation details.
 
 \subsection{Definition of the Problem}
-The research discussed in this paper revolves around a real-world problem. The problem involves predicting whether an applicant will accept an offer of admission to an undergraduate engineering program or not given their application data. With this information, the admissions department will be able to better judge how many offers they should issue in order to prevent under- or over-enrolment.
+The research discussed in this paper revolves around a real-world problem which involves predicting whether an applicant will accept an offer of admission to an undergraduate engineering program at a specific university given their application data. With this information, the admissions department will be able to better judge how many offers they should issue in order to prevent under- or over-enrolment.
 
 \subsection{Nature of the Data}
-The data being analyzed is undergraduate application information. Available features include Grade Point Average (GPA), high school attended, preferred tongue, location of residence, and more. A complete list with more in-depth descriptions can be found in the supporting software documentation in the appendix. In all, the total dimensionality of the data will be quite large.\\
-One interesting set of features is the applicant's ordered selection of various programs. These choices can be different programs within the same university or programs from different universities and there can be as many as 20 recorded choices. This will be handled by only looking at the top five choices. If the university in question is not in the top five choices, it is assumed they will not accept an offer. If the applicant has fewer than five choices, the empty choices will be filled in with zeros.\\
-The other interesting set of features are the courses the applicant's took and the corresponding grades. Since all applicants will have at least six courses in their application that is how many will be analyzed. All required courses (English, Calculus, Chemistry and Physics) will be included. The remaining two courses will use Advanced Functions, Data Management, Computer Science, and/or Biology if they were taken or other randomly selected courses otherwise. The randomly selected course will be assigned the same encoded label while the rest will be assigned unique encoded labels.\\
-Another important topic is the quantity and quality of the data. There are around 4300 applicants per year on average with an increase in more recent years. There are seven years of data available. This means there are about thirty thousand records available. Further, since the data is provided through official channels such as Ontario Universities' Application Centre (OUAC) it is safe to assume it is sufficiently reliable.
+The data being analyzed is undergraduate application information. Available features include Grade Point Average (GPA), high school attended, preferred language, location of residence, and more. A complete list with more in-depth descriptions can be found in Appendix \ref{app:applicationData}. The initial dimensionality of the data is quite large and even after preliminary cleaning of this data, there are still 32 features to consider.\\
+One set of features which poses a unique challenge is the applicant's ordered selection of various programs. These choices can be different programs within the same university or programs from different universities altogether and there can be as many as 20 recorded choices. This portion of the data will be handled by only considering the top five choices. If the university in question is not in the top five choices, it is assumed they will not accept an offer. The choices will be simplified to being either 0 (an application to another university) or 1 (an application to the university in question). If the applicant has fewer than five choices, the remaining choices will be superficially filled in with zeros.\\
+The other set of features which poses a challenge to handle are the courses the applicants took and the corresponding grades the applicant received in those courses. All applicants will have at least six courses in their application but the specific ones taken may vary. Therefore the four required courses (English, Calculus, Chemistry and Physics) are the only ones which can be reliably included. The original dataset maintained a separate column indicating which course the next grade was associated with. The grades will be stored in a consistent order in the cleaned dataset and so the column of labels can also be dropped.\\
+Another important topic is the quantity and quality of the data. There are around 4300 applicants per year on average and there are seven years of data, from 2009 to 2015. Therefore there are about thirty thousand records available. Further, since the data is provided through official channels such as OUAC it is safe to assume it is sufficiently reliable.
 
-\subsection{Algorithm Implementation Details}
-%TODO list which used KPCA, encoding techniques, specifics regarding setup/fine-tuning, etc.
+\subsection{Feature Engineering}
+Success of machine learning based analyses are often heavily reliant on a combination of the quality of feature engineering, hyperparameter tuning, and certain model specific techniques (the optimization algorithm used to train the model for example). Therefore it is prudent to discuss the handling of these facets of this analysis. There were three feature engineering techniques used during this analysis that are important to discuss. Every potential technique (and combination of techniques) was tried in tandem with each algorithm and to ensure that the analysis was comprehensive. The techniques tested include data balancing, feature scaling, and KPCA (discussed in the Algorithms section).\\
+Data balancing was achieved by evening out the number of samples of each class. Since the typical ratio of acceptances:non-acceptances is about 1:3, the non-acceptance subset of the data was subsamples in order to force a 1:1 ratio. Interestingly, data balancing in this way significantly harmed the performance of every model. For example, considering the SVM model for the year 2015, the final prediction error without balancing was about 2\% while the error with balancing was over 56\%. This is likely due to the importance of preserving the original proportion of acceptances to non-acceptances which introduces a beneficial bias for the algorithms to learn \cite{imbalanceBias}.\\
+In this case, feature scaling refers to modifying the values of a feature to a standardized form by centering the mean about zero and forcing a unit variance. This can often improve the effectiveness of optimization algorithms which in turn can improve the quality of the models. Although this technique was experimented with for each of the models, the only algorithm which benefitted from feature scaling was the neural networks. The other algorithms tended to perform significantly worse with scaled features. An interesting peculiarity is that scaling the testing data separate from the training data tended to perform slightly better than using the same scaling measures on the testing set that were applied to the training set. In this specific case, this could be due to factors such as grade inflation -- it is more important to measure the applicant's grade relevant to the current year's grades rather than previous years' grades.\\
+The KPCA algorithm is explained in detail in the Algorithms section. Characteristics specific to this analysis include the kernel used and how many principal components were calculated. Several standard kernel functions were experimented with including radial basis function (rbf), linear, sigmoid, cosine, and polynomial. For each kernel, an attempt was made to adjust the available hyperparameters available to that kernel function. All but the polynomial kernel resulted in every model performing anywhere from marginally to significantly worse. The polynomial kernel of degree 3 showed some positive results but the polynomial kernel of degree 2 performed even better. Further, extracting 5 principal components performed very well. Extracting 9 performed marginally better, but the combination of using more components and taking significantly longer to fit lead to the selection of just 5 principal components. Considering these results, the final KPCA transformation used a polynomial kernel of degree 2 with 5 principal components. A further indicator that this is a strong choice is that it consistently performed the best across the various machine learning algorithms. The two algorithms that were found to benefit from the KPCA transformation were k-NN and Naive Bayes. The KPCA transformation gave an average improvement of 0.18\% and 0.06\% to the random forest and decision tree algorithms, respectively. However, considering the added time required to compute this transformation as well as the loss of interpretability due to transforming the features, KPCA was not used in the final versions of these models.
 
+\subsection{Algorithm Implementation}
+As mentioned previously, the specifics of feature engineering, hyperparameter tuning, and certain model specific techniques used are important factors to discuss when describing an analysis. This section will now describe the latter two of these factors.\\
+Hyperparameter tuning was handled in a manual fashion. Various combinations of hyperparameters from one extreme to the other of their respective ranges were used to train an initial set of models. For example, if a hyperparameter could take on values between 0 and 20, the values 0, 5, 10, 15, and 20 would be tried first. If 5 and 10 produced the best results, then 6, 7, 8, and 9 would be tried. This process was repeated until modifying the hyperparameter stopped having an effect. Depending on what's appropriate for the specific hyperparameter, the efficacy of these selections can then be measured by inspecting the final model accuracy, ensuring that the training algorithm actually converges, or measuring the algorithm's training and testing times.\\
+Some of the hyperparameters available to certain models must be discussed in this paper since they can affect the training and testing times of the algorithms. In particular, these include the maximum depth for the regression tree algorithms, the number of trees used in the ensemble algorithms, the number of neighbours considered in k-NN and the data structure used to find those neighbours, the size of the neural network, and the step size of the optimization algorithms. The optimal maximum depth was a much stricter 6 for the ensemble methods compared to 10 for the singular decision tree model. This makes intuitive sense since the ensemble methods are meant to benefit from utilizing weaker learners relative to the singular method. Both ensemble methods ended up using 200 estimators. This count was selected by finding the least number of estimators which could still arrive at an optimal result. k-NN looked at the 9 nearest neighbours and used a distance-weighted metric to calculate the votes of those neighbours. Further, a k-d tree of size 30 was used by this algorithm in order to reduce the lookup time of the nearest neighbours. The neural network used two hidden layers, each containing 20 nodes. Most of the models performed nominally with the default learning rate of 0.1 except for the gradient boosting trees. For that algorithm a smaller learning rate of 0.01 was used.
 
+\subsection{Measurements}
+Accuracy for these models was measured by inspecting the results of predicting the number of acceptances for four different years using the data from the prior three years to train. For example, the models would be trained on the application data from the years 2009-2011 and then tested using the application data from year 2012. This was repeated as many times as possible given the full set of available data. In other words, each model was trained to predict the acceptances for the years 2012, 2013, 2014, and 2015 in this fashion.\\
+All timing measurements used the 2012-2014 application data (3,512, 3,784, 4,052 samples respectively -- 11,348 samples in total) as the training set and the 2015 application data (3231 samples) as the testing set. Being consistent is of course necessary to ensure accurate comparisons between algorithms.
 
-\section{Results and Analysis}%TODO
-%TODO Statistical analysis
-
-
-
-\section{Conclusions and Future Work}%TODO
-%TODO final comparisons
 
 
 \newpage
-\nocite{*}
+\section{Results}
+The discussion of this study's results are separated into those concerning accuracy and those concerning time in order to make it easier for readers to locate the results they are most interested in. The data used to calculate these results (other than the application data itself of course) is available in this document's appendices.
+
+\subsection{Accuracy}
+There are two factors to consider when analyzing the accuracy of the trained models in this analysis. The first is to simply calculate the difference between the predicted number of acceptances and the actual number of acceptances. Table \ref{tab:accuracies} lists the resulting average accuracies for each model sorted in descending order as well as the accompanying standard deviation of the accuracy across the years tested. The full list of results is available in Appendix \ref{app:modelAccuracies}. The naive bayes, neural network, and logistic regression algorithms all performed well below par. Looking at the individual scores reveals an interesting discovery. These models did not tend to consistently perform poorly, rather they would have an outlying year in which they would perform significantly worse which would drag down their overall average. These accuracies have been bolded in the table of accuracies in Appendix \ref{app:modelAccuracies}. On the other extreme, SVM performed extremely well. It had the best accuracy and, perhaps just as important, was consistently accurate with a lowest score of 96.26\%. The next best in terms of consistently strong results was the decision tree with a lowest score of 94.29\%.
+\begin{table}[!b]
+\begin{center}
+\begin{tabular}{c|c|c}
+	\textbf{Algorithm}		&\textbf{Accuracy}	&\textbf{Std. Dev.}\\\hline
+	SVM						&97.80				&1.02\\
+	k-NN					&97.30				&2.51\\
+	Boosting				&97.09				&2.03\\
+	Decision Tree			&96.75				&1.73\\
+	Random Forest			&96.49				&2.47\\
+	Naive Bayes				&95.59				&3.51\\
+	Neural Network			&94.80				&3.71\\
+	Logistic Regression		&93.69				&7.86
+\end{tabular}
+\end{center}
+\caption{The average accuracies measured for the final models of each algorithm.}
+\label{tab:accuracies}
+\end{table}~\\
+\noindent The second factor is more nuanced. By inspecting histograms of the models' predictions (Figures \ref{fig:histograms1} and \ref{fig:histograms2}), it can be seen that some of the approaches varied significantly in the predictions for individual applicants. When inspecting these diagrams, it is important to take careful note of the scale of the x-axis as it is not consistent among the histograms. The first interesting result is that many of the models have a spike at or near 27\%. This is likely due to the fact that the average percentage of acceptances among all years is about that so there would be a benefit to predicting that specific likelihood. Another interesting result is that the histograms for all of the tree-based learning methods are quite similar in that they never (or at most rarely) predict a likelihood lower than 10\% or greater than 70\%. It is likely that this is an artifact of the core similarities of these models. A second set of histograms which were similar in nature were those of k-NN, logistic regression, and the neural network. The predictions by these models ranged all, or almost all, the way between 0\% and 100\%.\\
+The last two models were quite unique in their results as viewed through the predictions histogram. The first of these is SVM, our best performer according to the average accuracy measurement. Looking at its histogram tells an interesting story -- it refused to make a definitive prediction. Every one of its predictions lay in the range of 27\% and 33\%. If the goal was to actually classify applicants based on whether or not they would accept, this would be an absolute failure. Also, if there happened to be a larger percentage of students who were actually likely to accept an offer in a year, this model will likely prove ineffective. The second unique model was naive bayes. This model's prediction histogram is much less continuous than the rest and had clusters of predictions around a few likelihoods.
+\begin{figure}[!t]
+\begin{center}
+\begin{tabular}{cc}
+	\subfloat{\includegraphics[width = 0.45\textwidth]{histograms/k-NN}} &
+	\subfloat{\includegraphics[width = 0.45\textwidth]{histograms/decision_tree}}\\
+	\subfloat{\includegraphics[width = 0.45\textwidth]{histograms/random_forest}} &
+	\subfloat{\includegraphics[width = 0.45\textwidth]{histograms/boosting}}
+\end{tabular}
+\caption{Histograms of the predictions of the first four models for the 2015 data.}
+\label{fig:histograms1}
+\end{center}
+\end{figure}
+\begin{figure}[!b]
+\begin{center}
+\begin{tabular}{cc}
+	\subfloat{\includegraphics[width = 0.45\textwidth]{histograms/logistic_regression}} &
+	\subfloat{\includegraphics[width = 0.45\textwidth]{histograms/naive_bayes}} \\
+	\subfloat{\includegraphics[width = 0.45\textwidth]{histograms/svm}} &
+	\subfloat{\includegraphics[width = 0.45\textwidth]{histograms/neural_net}}
+\end{tabular}
+\caption{Histograms of the predictions of the last four models for the 2015 data.}
+\label{fig:histograms2}
+\end{center}
+\end{figure}
+
+
+\subsection{Time}
+The box plots in figures \ref{fig:trainingTimes} and \ref{fig:testingTimes} graphically depict the results of measuring the time taken by each algorithm in both the training and the testing steps. The full set of results are also available in appendices \ref{app:trainingTimes} and \ref{app:testingTimes}.\\
+In terms of training times, the algorithms can easily be ordered from slowest to fastest. The slowest being boosting and neural networks; the fastest being naive bayes and k-NN. In terms of testing time, it is more difficult to confidently order certain algorithms although there are still clear fastest and slowest algorithms. The slowest being k-NN and SVM; the fastest being decision trees and logistic regression. This is not quite the full story though.
+An important element to keep in mind is the time used by any necessary data preparation steps. Since data balancing was not found to be useful for any of the models in solving this particular problem, it was not necessary to measure that process for this study. However, since some of the algorithms benefitted from and ended up employing feature scaling or KPCA, it is necessary to measure those processes.\\
+Feature scaling is a fairly quick process taking time in the neighbourhood of a couple milliseconds. Only the neural network algorithm was found to benefit from feature scaling and as mentioned previously, the training time for that algorithm was in the order of seconds. Further, transforming new data is as simple as performing a single addition and division operation which is extremely quick. Therefore the additional time arising from the feature scaling step is negligible and can be ignored.\\
+On the other hand, KPCA is a time intensive process and so its performance must be inspected more closely. The time required to perform the KPCA transformation in both the testing and the training steps was measured 25 times. The recorded times are available in the second table of Appendices \ref{app:trainingTimes} and \ref{app:testingTimes}. The resulting average times for the training and testing steps were about 14.93 and 1.36 seconds respectively.\\
+Now that the full picture has been considered, the final results change slightly. Naive bayes was the fastest algorithm in terms of training time and one of the fastest in terms of testing time. k-NN was also extremely quick to train but was already one of the slowest in terms of testing time. However since these algorithms relied on KPCA to be competitive in terms of accuracy, they easily become the slowest overall across the board. The fastest algorithm in terms of training time is then decision trees. The fastest algorithm in terms of testing time remains a tie between decision trees and logistic regression.
+\begin{figure}
+\begin{center}
+\begin{tabular}{ccc}
+	\subfloat{\includegraphics[width = 0.32\textwidth]{timeBoxPlots/trainingSlowTimeBoxplot}} &
+	\subfloat{\includegraphics[width = 0.32\textwidth]{timeBoxPlots/trainingMedTimeBoxplot}} &
+	\subfloat{\includegraphics[width = 0.32\textwidth]{timeBoxPlots/trainingFastTimeBoxplot}} 
+\end{tabular}
+\caption{The measured training times of each model.}
+\label{fig:trainingTimes}
+\end{center}
+\end{figure}
+\begin{figure}
+\begin{center}
+\begin{tabular}{cc}
+	\subfloat{\includegraphics[width = 0.32\textwidth]{timeBoxPlots/testingMedTimeBoxplot}} &
+	\subfloat{\includegraphics[width = 0.32\textwidth]{timeBoxPlots/testingFastTimeBoxplot}} 
+\end{tabular}
+\caption{The measured testing times of each model.}
+\label{fig:testingTimes}
+\end{center}
+\end{figure}
+
+
+\newpage
+\section{Conclusions and Future Work}
+As can be noted from the results in the previous section, this research leads to some definitive conclusions involving both the efficacy of these machine learning techniques as applied to this specific problem as well as how the models relate to one another in terms of their training and execution time. If execution speed is of concern for a given problem, the best candidates are logistic regression, decision trees, naive bayes, or small neural networks. For the problem considered in this paper, execution time is not a concern. Therefore the best model for the job is simply the one which reliably performed the best -- SVM.\\
+One of the most surprising results was that arguably the most elementary of the models, plain decision trees, performed so amicably. As always, the ``no free lunch'' theorem remains valid. Perhaps with more studies of this nature performed, the scientific community will one day be able to discover a technique which reliably predicts which algorithm best suits a given problem. However, until that day comes, it is important not to eliminate algorithmic alternatives without first testing their efficacy for that specific problem.
+
+
+
+\newpage
 \printbibliography
+\newpage
+
+
+
+\setcounter{secnumdepth}{1}	%Makes the appendix name show, this was set to 0 to hide section numbers earlier
+\titlecontents{section}
+  [1.7em]{}{\appendixname\ \contentslabel{0em}\ \hspace*{0.8em} }{}
+  {\titlerule*[1pc]{}\contentspage}
+\titleformat{\section}
+  {\normalfont\Large\bfseries}{\appendixname\ \thesection:}{1em}{}
+\appendix
+\section{Application Data}
+\label{app:applicationData}
+\vspace*{\fill}
+\begin{table}[!hb]
+\begin{center}
+\begin{tabular}{| C{4cm} | C{10cm} |}\hline
+	\textbf{Feature}				&\textbf{Description}\\\hline
+	School ID						&Ontario Secondary School number of the applicant's school.\\\hline
+	School Board					&Ontario Secondary School board of the applicant's school.\\\hline
+	School Region					&County/region of school of the applicant's school.\\\hline
+	Sex								&The applicant's gender.\\\hline
+	Birth Year						&The applicant's birth year.\\\hline
+	Location of Residence			&The country, province, county, and postal code of the applicant's residence.\\\hline
+	Immigration Status				&Applicant's immigration status.\\\hline
+	Citizenship						&The citizenship country and region of this applicant.\\\hline
+	Mother Tongue					&The applicant's native tongue.\\\hline
+	Applicant Type					&The type of applicant.\\\hline
+	Confirmed Details				&The confirmed university, program group, program, program year level, enrolment term, and OUAC choice preference of this applicant.\\\hline
+	Choice Ranking					&This applicant's OUAC confirmed choice preference.\\\hline
+	Registered Details				&The registered university, program group, program, program year level, enrolment term, and OUAC choice preference of this applicant.\\\hline
+	Senior Level Courses Data		&The course info for this applicant's 12 senior level courses including course codes, course credits, and final marks.\\\hline
+	Senior Level Courses Summary	&The number of senior level courses this applicant took and their total senior level credits.\\\hline
+	Years in Secondary				&The number of years this applicant was in secondary school.\\\hline
+	Average 1						&The average of the applicant's best 6 senior level course finals from this year.\\\hline
+	Average 2						&The average of the applicant's best 6 senior level course finals from all years.\\\hline
+	More than 20					&A flag indicating the applicant has more than 20 choices.\\\hline
+	Application Choice Data			&The applicant's application preferences for up to 20 choices including the ranking of each choice. Each choice also contains: the university, program group, program, full-time or part-time, enrolment term, major interest, co-op or not co-op, and the year level.\\\hline
+	Offer Data						&The program group, program, enrolment term, and year level offered to this applicant.\\\hline
+	Confirmed Indicator				&Whether the applicant has confirmed their offer.\\\hline
+	Registered Indicator			&Whether the applicant has registered.\\\hline
+	Sequence Number					&The sequence number of this application.\\\hline
+\end{tabular}
+\caption{The set of features available as well as their descriptions.}
+\end{center}
+\end{table}
+\vspace*{\fill}
+\newpage
+
+
+
+\section{Final Model Accuracies}
+\label{app:modelAccuracies}
+\vspace*{\fill}
+\begin{table}[!hb]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}\hline
+	\textbf{Algorithm}	&\textbf{2012}	&\textbf{2013}	&\textbf{2014}	&\textbf{2015}\\\hline
+	SVM					&97.77			&96.26			&99.12			&98.05\\\hline
+	k-NN				&99.97			&97.76			&93.18			&98.29\\\hline
+	Boosting			&99.46			&93.91			&97.98			&96.99\\\hline
+	Decision Tree		&98.13			&94.29			&98.61			&95.97\\\hline
+	Random Forest		&99.76			&93.71			&97.97			&94.54\\\hline
+	Naive Bayes			&97.98			&98.24			&\textbf{89.62}	&96.52\\\hline
+	Neural Network		&93.64			&98.95			&97.30			&\textbf{89.31}\\\hline
+	Logistic Regression	&\textbf{80.22}	&99.52			&96.43			&98.58\\\hline
+\end{tabular}
+\caption{The accuracies of each model when predicting each of the four years tested.}
+\end{center}
+\end{table}
+\vspace*{\fill}
+\newpage
+
+
+\section{Model Training Times}
+\label{app:trainingTimes}
+\vspace*{\fill}
+\begin{table}[!hb]
+\begin{center}
+\begin{tabular}{|C{7mm}|C{20mm}|C{20mm}|C{20mm}|C{20mm}|}\hline
+	\textbf{Test \#}	&\textbf{Boosting}	&\textbf{Decision Tree}	&\textbf{k-NN}	&\textbf{Logistic Regression}\\\hline
+	1					&6.014579			&0.032445				&0.021921		&1.168239\\\hline
+	2					&6.060366			&0.034278				&0.024611		&0.635102\\\hline
+	3					&6.017735			&0.035130				&0.020322		&0.939361\\\hline
+	4					&6.015630			&0.031482				&0.019323		&1.109485\\\hline
+	5					&6.013562			&0.033569				&0.019992		&1.104097\\\hline
+	6					&5.954664			&0.031232				&0.021686		&0.990864\\\hline
+	7					&5.979299			&0.034273				&0.020652		&1.179635\\\hline
+	8					&6.054811			&0.033395				&0.020216		&1.120850\\\hline
+	9					&5.957272			&0.031599				&0.019249		&1.060616\\\hline
+	10					&5.996466			&0.031738				&0.020033		&0.869333\\\hline
+	11					&5.930105			&0.034821				&0.020904		&1.029269\\\hline
+	12					&5.917739			&0.031680				&0.019462		&1.071033\\\hline
+	13					&5.960781			&0.033725				&0.019386		&1.009424\\\hline
+	14					&5.957456			&0.034754				&0.019507		&1.080049\\\hline
+	15					&5.997807			&0.030992				&0.019638		&1.065849\\\hline
+	16					&6.001351			&0.031175				&0.020336		&1.038358\\\hline
+	17					&6.017457			&0.031006				&0.01945		&0.807184\\\hline
+	18					&5.969680			&0.032123				&0.021128		&0.937696\\\hline
+	19					&5.948551			&0.035235				&0.022022		&1.101875\\\hline
+	20					&5.975451			&0.034017				&0.019832		&1.004352\\\hline
+	21					&5.976886			&0.033061				&0.019582		&0.937616\\\hline
+	22					&5.981837			&0.036824				&0.021396		&1.074481\\\hline
+	23					&5.954940			&0.031187				&0.019696		&1.071317\\\hline
+	24					&5.987484			&0.031624				&0.019306		&1.073245\\\hline
+	25					&5.969200			&0.034412				&0.019542		&1.212441\\\hline
+\end{tabular}
+\caption{Recorded training times (in seconds).}
+\end{center}
+\end{table}
+\vspace*{\fill}
+\newpage
+\vspace*{\fill}
+\begin{table}[!hb]
+\begin{center}
+\begin{tabular}{|C{7mm}|C{20mm}|C{20mm}|C{20mm}|C{20mm}|C{20mm}|}\hline
+	\textbf{Test \#}	&\textbf{Naive Bayes}	&\textbf{Neural Network}	&\textbf{Random Forest}	&\textbf{SVM}	&\textbf{KPCA}\\\hline
+	1					&0.008159				&3.505126					&1.566178				&2.287402		&14.240538\\\hline
+	2					&0.004718				&3.473786					&1.566805				&2.131824		&15.893182\\\hline
+	3					&0.004940				&3.492679					&1.568548				&2.154087		&14.650137\\\hline
+	4					&0.005550				&3.485388					&1.576334				&2.172097		&14.594341\\\hline
+	5					&0.004792				&3.449026					&1.588099				&2.324865		&14.629999\\\hline
+	6					&0.004594				&3.444341					&1.549295				&2.124706		&14.621863\\\hline
+	7					&0.005569				&3.462723					&1.558287				&2.310966		&14.687193\\\hline
+	8					&0.005428				&3.456469					&1.568966				&2.168869		&14.867636\\\hline
+	9					&0.004831				&3.435878					&1.554109				&2.114290		&14.603836\\\hline
+	10					&0.004974				&3.420343					&1.562342				&2.134637		&15.658565\\\hline
+	11					&0.005153				&3.434086					&1.578996				&2.248318		&15.265155\\\hline
+	12					&0.005344				&3.418523					&1.551412				&2.331544		&14.647819\\\hline
+	13					&0.004958				&3.417171					&1.581576				&2.299722		&14.169253\\\hline
+	14					&0.004927				&3.459040					&1.561475				&2.302909		&14.066407\\\hline
+	15					&0.005374				&3.442721					&1.490999				&2.495037		&14.139257\\\hline
+	16					&0.005086				&3.447201					&1.467739				&2.311589		&14.182458\\\hline
+	17					&0.005025				&3.465676					&1.497569				&2.411274		&16.323833\\\hline
+	18					&0.005077				&3.433271					&1.499206				&2.243295		&17.496630\\\hline
+	19					&0.004753				&3.477900					&1.482648				&2.443555		&15.018163\\\hline
+	20					&0.005506				&3.449088					&1.458587				&2.295928		&14.636940\\\hline
+	21					&0.004782				&3.433294					&1.425397				&2.230634		&14.577261\\\hline
+	22					&0.004638				&3.411233					&1.429310				&2.514056		&14.704826\\\hline
+	23					&0.005480				&3.413155					&1.421311				&2.612107		&15.338391\\\hline
+	24					&0.004851				&3.468480					&1.425698				&2.522150		&14.839778\\\hline
+	25					&0.005192				&3.441341					&1.449023				&2.474955		&15.084180\\\hline
+\end{tabular}
+\caption{Recorded training times (in seconds).}
+\end{center}
+\end{table}
+\vspace*{\fill}
+\newpage
+
+\section{Model Testing Times}
+\label{app:testingTimes}
+\vspace*{\fill}
+\begin{table}[!hb]
+\begin{center}
+\begin{tabular}{|C{7mm}|C{20mm}|C{20mm}|C{20mm}|C{20mm}|}\hline
+	\textbf{Test \#}	&\textbf{Boosting}	&\textbf{Decision Tree}	&\textbf{k-NN}	&\textbf{Logistic Regression}\\\hline
+	1					&0.014745			&0.000816				&0.086484		&0.000692\\\hline
+	2					&0.018366			&0.000815				&0.085454		&0.000579\\\hline
+	3					&0.014911			&0.000772				&0.084303		&0.000621\\\hline
+	4					&0.015195			&0.000711				&0.076118		&0.000630\\\hline
+	5					&0.014597			&0.000785				&0.084428		&0.000675\\\hline
+	6					&0.014995			&0.000857				&0.084832		&0.000660\\\hline
+	7					&0.018093			&0.000841				&0.084614		&0.000698\\\hline
+	8					&0.014512			&0.000779				&0.077617		&0.000742\\\hline
+	9					&0.016340			&0.001203				&0.085100		&0.000783\\\hline
+	10					&0.014792			&0.000811				&0.079556		&0.000645\\\hline
+	11					&0.015412			&0.000782				&0.079321		&0.000738\\\hline
+	12					&0.014813			&0.000773				&0.082753		&0.000671\\\hline
+	13					&0.014710			&0.000793				&0.077198		&0.000947\\\hline
+	14					&0.014737			&0.000726				&0.079738		&0.000648\\\hline
+	15					&0.014730			&0.000803				&0.079055		&0.000799\\\hline
+	16					&0.014653			&0.000723				&0.082422		&0.000780\\\hline
+	17					&0.016565			&0.000695				&0.087120		&0.000646\\\hline
+	18					&0.016811			&0.000758				&0.073115		&0.000706\\\hline
+	19					&0.014936			&0.001364				&0.078493		&0.000681\\\hline
+	20					&0.014524			&0.000699				&0.080206		&0.000715\\\hline
+	21					&0.017593			&0.000755				&0.085010		&0.000653\\\hline
+	22					&0.014353			&0.000813				&0.084700		&0.001009\\\hline
+	23					&0.015566			&0.000729				&0.086108		&0.000663\\\hline
+	24					&0.015575			&0.000797				&0.079523		&0.000662\\\hline
+	25					&0.014444			&0.000780				&0.085377		&0.000671\\\hline
+\end{tabular}
+\caption{Recorded testing times (in seconds).}
+\end{center}
+\end{table}
+\vspace*{\fill}
+\newpage
+\vspace*{\fill}
+\begin{table}[!hb]
+\begin{center}
+\begin{tabular}{|C{7mm}|C{20mm}|C{20mm}|C{20mm}|C{20mm}|C{20mm}|}\hline
+	\textbf{Test \#}	&\textbf{Naive Bayes}	&\textbf{Neural Network}	&\textbf{Random Forest}	&\textbf{SVM}	&\textbf{KPCA}\\\hline
+	1					&0.002021				&0.003932					&0.053894				&0.084272		&1.312920\\\hline
+	2					&0.001504				&0.002509					&0.057545				&0.079924		&1.568186\\\hline
+	3					&0.001486				&0.002706					&0.052212				&0.076127		&1.347254\\\hline
+	4					&0.001829				&0.003109					&0.053566				&0.081387		&1.349163\\\hline
+	5					&0.001591				&0.002784					&0.054663				&0.074027		&1.405964\\\hline
+	6					&0.001462				&0.002302					&0.052820				&0.080510		&1.358854\\\hline
+	7					&0.001924				&0.002266					&0.055589				&0.077143		&1.327478\\\hline
+	8					&0.001721				&0.003042					&0.056165				&0.073817		&1.325931\\\hline
+	9					&0.001513				&0.002822					&0.054600				&0.074220		&1.351180\\\hline
+	10					&0.001490				&0.002999					&0.055901				&0.073402		&1.271649\\\hline
+	11					&0.001744				&0.002371					&0.055302				&0.081237		&1.295780\\\hline
+	12					&0.001495				&0.002912					&0.053409				&0.076959		&1.321630\\\hline
+	13					&0.001555				&0.002586					&0.059653				&0.075698		&1.323139\\\hline
+	14					&0.001577				&0.003157					&0.053677				&0.075555		&1.281131\\\hline
+	15					&0.001584				&0.002677					&0.051444				&0.073635		&1.292695\\\hline
+	16					&0.001467				&0.002432					&0.049673				&0.078155		&1.304743\\\hline
+	17					&0.001630				&0.002387					&0.054081				&0.079193		&1.337067\\\hline
+	18					&0.001872				&0.002246					&0.057015				&0.087499		&1.565558\\\hline
+	19					&0.001484				&0.002732					&0.055404				&0.082698		&1.501984\\\hline
+	20					&0.001717				&0.002873					&0.057610				&0.073436		&1.311435\\\hline
+	21					&0.001638				&0.002999					&0.047760				&0.073338		&1.410371\\\hline
+	22					&0.001517				&0.002655					&0.048180				&0.083189		&1.272483\\\hline
+	23					&0.001910				&0.002392					&0.047643				&0.092331		&1.541743\\\hline
+	24					&0.001539				&0.002106					&0.047704				&0.083208		&1.298361\\\hline
+	25					&0.001733				&0.002159					&0.052760				&0.089914		&1.331161\\\hline
+\end{tabular}
+\caption{Recorded testing times (in seconds).}
+\end{center}
+\end{table}
+\vspace*{\fill}
+
+
+\nocite{*}
 \end{document}
-
-
-

@@ -7,13 +7,15 @@ from sklearn.metrics import roc_auc_score
 from sklearn.metrics import roc_curve
 from sklearn.preprocessing import scale
 
+from models import *
+
 #Loads data, separate into x and y for train and test
 #year - the year to test
 #num_years - the number of previous years to consider
 #balance - whether to balance the number of acceptances and denials
 #
 #returns x_train, y_train, x_test, y_test
-def load(year, num_years=3, scale_x=False, balance=False):
+def load(year, num_years=3, kpca=False, scale_x=False, balance=False):
 	data = pd.read_csv("../../data/csv/clean.csv")
 	test = data[data["REFYR"] == year]
 
@@ -30,17 +32,33 @@ def load(year, num_years=3, scale_x=False, balance=False):
 	x_test = test.drop(["SEQNO", "ACCPT"], axis=1)
 	y_test = test["ACCPT"]
 
+	if(kpca):
+		kpca = kpcaModel().fit(x_train)
+		x_train = kpca.transform(x_train)
+		x_test = kpca.transform(x_test)
+
 	if(scale_x):
-		return scale(x_train), y_train, scale(x_test), y_test
+		t_train = time.clock()#TEMP
+		x_train = scale(x_train)
+		t_train = time.clock() - t_train#TEMP
+		t_test = time.clock()#TEMP
+		x_test = scale(x_test)
+		t_test = time.clock() - t_test#TEMP
+
+		print(str(t_train) + " " + str(t_test))#TEMP
 
 	return x_train, y_train, x_test, y_test
 
 #Perform the training and testing for this model.
+#Sets the random seed to a constant pseudorandom value for repeatability
 #model - The model to use
 #x_train, y_train, x_test, y_test - The data to use
 #
 #returns pred (the resulting predictions), confusion (the resulting confusion matrix), t_train, t_test
-def train_and_test(model, x_train, y_train, x_test, y_test, binary=True):
+def train_and_test(model, x_train, y_train, x_test, y_test):
+	seed = 235945778
+	np.random.seed(seed)
+
 	t_train = time.clock()
 	model.fit(x_train, y_train)
 	t_train = time.clock() - t_train
@@ -48,12 +66,8 @@ def train_and_test(model, x_train, y_train, x_test, y_test, binary=True):
 	t_test = time.clock()
 	class_pred = model.predict(x_test)
 	t_test = time.clock() - t_test
-
-	if(not binary):
-		class_pred = np.where(class_pred > 0.5, 1, 0)
 		
-	confusion = confusion_matrix(y_test, class_pred)
-	return class_pred, confusion, t_train, t_test
+	return class_pred, confusion_matrix(y_test, class_pred), t_train, t_test
 
 #Displays a summary of the results of a model's performance
 #t_train - The recorded training time
@@ -88,7 +102,26 @@ def plot_roc_curve(label, filename, class_pred, class_probs, targets, show=False
 	plt.ylabel('True Positive Rate')
 	plt.title('Receiver Operating Characteristic (ROC)')
 	plt.legend(loc="lower right")
-	plt.savefig('../../resources/%s_ROC' % (filename))
+	plt.savefig('../../resources/ROC/%s' % (filename))
 
 	if(show):
 		plt.show()
+
+	plt.close()
+
+#Plots the histogram for the given class probabilities
+#label - A string containing the label displayed on the graph
+#filename - The name of the file to save the plot to
+#class_probs - The predicted class probabilities
+#show - Whether to show the plot
+def plot_prediction_histogram(label, filename, class_probs, show=False):
+	plt.hist(class_probs, bins="auto")
+	plt.xlabel('Predicted Probability')
+	plt.ylabel('Number of Observations')
+	plt.title('Prediction Histogram\n(%s)' % (label))
+	plt.savefig('../../resources/histograms/%s' % (filename))
+
+	if(show):
+		plt.show()
+
+	plt.close()

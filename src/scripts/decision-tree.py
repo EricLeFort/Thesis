@@ -1,35 +1,23 @@
 #!/usr/local/bin/python2
-
-import numpy as np
-from sklearn.tree import DecisionTreeClassifier
-
 from utilities import *
-
-#Pseudorandom seed made by mashing my keyboard
-seed = 97169653
-np.random.seed(seed)
-
-#Set hyperparameters
-max_depth = 10
-min_samples_leaf = 20
-max_leaf_nodes = 25
-min_impurity_decrease = 0.0006
+import models
 
 #Load data
-x_train, y_train, x_test, y_test = load(year=14)
+x_train, y_train, x_test, y_test = load(year=15)
 
 #Define model
-model = DecisionTreeClassifier(
-	max_depth=max_depth,
-	min_samples_leaf=min_samples_leaf,
-	max_leaf_nodes=max_leaf_nodes,
-	min_impurity_decrease=min_impurity_decrease)
+model = models.decisionTreeModel()
 
 #Train and test model
 class_pred, confusion, t_train, t_test = train_and_test(model, x_train, y_train, x_test, y_test)
+pred = model.predict_proba(x_test)[:,1]
 
 #Display results
-display_results(t_train, t_test, confusion, model.predict_proba(x_test)[:,1])
+display_results(t_train, t_test, confusion, pred)
 
-#Plot ROC curve
-plot_roc_curve("Decision Tree", "decision_tree_ROC", class_pred, model.predict_proba(x_test)[:,1], y_test)
+#Plot diagrams
+plot_roc_curve("Decision Tree", "decision_tree", class_pred, pred, y_test)
+plot_prediction_histogram("Decision Tree", "decision_tree", pred)
+
+#KPCA was only 0.06% better
+#not worth the extra training time and loss of interpretability

@@ -1,37 +1,23 @@
 #!/usr/local/bin/python2
-
-import numpy as np
-from sklearn.ensemble import RandomForestClassifier
-
 from utilities import *
-
-#Pseudorandom seed made by mashing my keyboard
-seed = 51396235
-np.random.seed(seed)
-
-#Set hyperparameters
-n_trees = 200
-max_features = "auto"
-max_depth = 6
-min_samples_leaf = 40
-max_leaf_nodes = 15
+import models
 
 #Load data
 x_train, y_train, x_test, y_test = load(year=15)
 
 #Define model
-model = RandomForestClassifier(
-	n_estimators=n_trees,
-	max_features=max_features,
-	max_depth=max_depth,
-	min_samples_leaf=min_samples_leaf,
-	max_leaf_nodes=max_leaf_nodes)
+model = models.randomForestModel()
 
 #Train and test model
 class_pred, confusion, t_train, t_test = train_and_test(model, x_train, y_train, x_test, y_test)
+pred = model.predict_proba(x_test)[:,1]
 
 #Display results
-display_results(t_train, t_test, confusion, model.predict_proba(x_test)[:,1])
+display_results(t_train, t_test, confusion, pred)
 
-#Plot ROC curve
-plot_roc_curve("Random Forest", "random_forest_ROC", class_pred, model.predict_proba(x_test)[:,1], y_test)
+#Plot diagrams
+plot_roc_curve("Random Forest", "random_forest", class_pred, pred, y_test)
+plot_prediction_histogram("Random Forest", "random_forest", pred)
+
+#KPCA was only 0.18% better
+#not worth the extra training time and loss of interpretability
