@@ -1,0 +1,96 @@
+\chapter{Results}
+The discussion of this study's results are separated into those concerning accuracy and those concerning time in order to make it easier for readers to locate the results they are most interested in. The data used to calculate these results (other than the application data itself of course) is available in this document's appendices.
+
+
+
+\section{Accuracy}
+There are two factors to consider when analyzing the accuracy of the trained models in this analysis. The first is to simply calculate the difference between the predicted number of acceptances and the actual number of acceptances. A baseline was established by building a much simpler model which uses the average acceptance rate of the three years prior to a given year in order to predict that given year's acceptance rate. We can then use the baseline's accuracy to gauge the effectiveness of the other algorithms.\\
+
+\begin{table}[!hb]
+\begin{center}
+\begin{tabular}{c|c|c}
+	\textbf{Algorithm}		&\textbf{Accuracy}	&\textbf{Std. Dev.}\\\hline
+	SVM						&97.80				&1.02\\
+	k-NN					&97.30				&2.51\\
+	Boosting				&97.09				&2.03\\
+	Decision Tree			&96.75				&1.73\\
+	Random Forest			&96.49				&2.47\\
+	Baseline				&96.22				&1.91\\
+	Naive Bayes				&95.59				&3.51\\
+	Neural Network			&94.80				&3.71\\
+	Logistic Regression		&93.69				&7.86
+\end{tabular}
+\end{center}
+\caption{The average accuracies measured for the final models.}
+\label{tab:accuracies}
+\end{table}
+
+Table \ref{tab:accuracies} lists the resulting average accuracies for each model sorted in descending order as well as the accompanying standard deviation of the accuracy across the years tested. The full list of results is available in Appendix \ref{app:modelAccuracies}. The naive bayes, neural network, and logistic regression algorithms all performed at a rate that did not even exceed the baseline. Looking at the individual scores reveals an interesting discovery. These models did not tend to consistently perform poorly, rather they would have an outlying year in which they would perform significantly worse which would drag down their overall average. These accuracies have been bolded in the table of accuracies in Appendix \ref{app:modelAccuracies}. On the other extreme, SVM performed extremely well. It had the best accuracy and, perhaps just as important, was consistently accurate with a lowest score of 96.26\%. The next best in terms of consistently strong results was the decision tree with a lowest score of 94.29\%.
+
+\begin{figure}[!bp]
+\begin{center}
+\begin{tabular}{cc}
+	\subfloat{\includegraphics[width = 0.5\textwidth]{histograms/k-NN}} &
+	\subfloat{\includegraphics[width = 0.5\textwidth]{histograms/decision_tree}}\\
+	\subfloat{\includegraphics[width = 0.5\textwidth]{histograms/random_forest}} &
+	\subfloat{\includegraphics[width = 0.5\textwidth]{histograms/boosting}}
+\end{tabular}
+\caption{Prediction histograms of the first four models for the 2015 data.}
+\label{fig:histograms1}
+\end{center}
+\end{figure}
+\begin{figure}[!ht]
+\begin{center}
+\begin{tabular}{cc}
+	\subfloat{\includegraphics[width = 0.5\textwidth]{histograms/logistic_regression}} &
+	\subfloat{\includegraphics[width = 0.5\textwidth]{histograms/naive_bayes}} \\
+	\subfloat{\includegraphics[width = 0.5\textwidth]{histograms/svm}} &
+	\subfloat{\includegraphics[width = 0.5\textwidth]{histograms/neural_net}}
+\end{tabular}
+\caption{Prediction histograms of the last four models for the 2015 data.}
+\label{fig:histograms2}
+\end{center}
+\end{figure}
+
+The second factor is more nuanced. By inspecting histograms of the models' predictions (Figures \ref{fig:histograms1} and \ref{fig:histograms2}), it can be seen that some of the approaches varied significantly in the predictions for individual applicants. When inspecting these diagrams, it is important to take careful note of the scale of the x-axis as it is not consistent among the histograms. The first interesting result is that many of the models have a spike at or near 27\%. This is likely due to the fact that the average percentage of acceptances among all years is about that so there would be a benefit to predicting that specific likelihood. Another interesting result is that the histograms for all of the tree-based learning methods are quite similar in that they never (or at most rarely) predict a likelihood lower than 10\% or greater than 70\%. It is likely that this is an artifact of the core similarities of these models. A second set of histograms which were similar in nature were those of k-NN, logistic regression, and the neural network. The predictions by these models ranged all, or almost all, the way between 0\% and 100\%.
+
+The last two models were quite unique in their results as viewed through the predictions histogram. The first of these is SVM, our best performer according to the average accuracy measurement. Looking at its histogram tells an interesting story -- it refused to make a definitive prediction. Every one of its predictions lay in the range of 27\% and 33\%. If the goal was to actually classify applicants based on whether or not they would accept, this would be an absolute failure. Also, if there happened to be a larger percentage of students who were actually likely to accept an offer in a year, this model will likely prove ineffective. The second unique model was naive bayes. This model's prediction histogram is much less continuous than the rest and had clusters of predictions around a few likelihoods.
+
+
+
+\section{Time}
+The box plots in figures \ref{fig:trainingTimes} and \ref{fig:testingTimes} graphically depict the results of measuring the time taken by each algorithm in both the training and the testing steps. The full set of results are also available in appendices \ref{app:trainingTimes} and \ref{app:testingTimes}.
+
+\begin{figure}[!ht]
+\begin{center}
+\begin{tabular}{ccc}
+	\subfloat{\includegraphics[width = 0.5\textwidth]{timeBoxPlots/trainingSlowTimeBoxplot}} &
+	\subfloat{\includegraphics[width = 0.5\textwidth]{timeBoxPlots/trainingMedTimeBoxplot}}\\[-8mm]
+	\multicolumn{2}{c}{\subfloat{\includegraphics[width = 0.5\textwidth]{timeBoxPlots/trainingFastTimeBoxplot}}}
+\end{tabular}
+\caption{The measured training times of each model.}
+\label{fig:trainingTimes}
+\end{center}
+\end{figure}
+
+
+In terms of training times, the algorithms can easily be ordered from slowest to fastest. The slowest being boosting and neural networks; the fastest being naive bayes and k-NN. In terms of testing time, it is more difficult to confidently order certain algorithms although there are still clear fastest and slowest algorithms. The slowest being k-NN and SVM; the fastest being decision trees and logistic regression. This is not quite the full story though.
+
+\begin{figure}[!htbp]
+\begin{center}
+\begin{tabular}{cc}
+	\subfloat{\includegraphics[width = 0.5\textwidth]{timeBoxPlots/testingMedTimeBoxplot}} &
+	\subfloat{\includegraphics[width = 0.5\textwidth]{timeBoxPlots/testingFastTimeBoxplot}} 
+\end{tabular}
+\caption{The measured testing times of each model.}
+\label{fig:testingTimes}
+\end{center}
+\end{figure}
+
+An important element to keep in mind is the time used by any necessary data preparation steps. Since data balancing was not found to be useful for any of the models in solving this particular problem, it was not necessary to measure that process for this study. However, since some of the algorithms benefitted from and ended up employing feature scaling or KPCA, it is necessary to measure those processes.
+
+Feature scaling is a fairly quick process taking time in the neighbourhood of a couple milliseconds. Only the neural network algorithm was found to benefit from feature scaling and as mentioned previously, the training time for that algorithm was in the order of seconds. Further, transforming new data is as simple as performing a single addition and division operation which is extremely quick. Therefore the additional time arising from the feature scaling step is negligible and can be ignored.
+
+On the other hand, KPCA is a time intensive process and so its performance must be inspected more closely. The time required to perform the KPCA transformation in both the testing and the training steps was measured 25 times. The recorded times are available in the second table of Appendices \ref{app:trainingTimes} and \ref{app:testingTimes}. The resulting average times for the training and testing steps were about 14.93 and 1.36 seconds respectively.
+
+Now that the full picture has been considered, the final results change slightly. Naive bayes was the fastest algorithm in terms of training time and one of the fastest in terms of testing time. k-NN was also extremely quick to train but was already one of the slowest in terms of testing time. However since these algorithms relied on KPCA to be competitive in terms of accuracy, they easily become the slowest overall across the board. The fastest algorithm in terms of training time is then decision trees. The fastest algorithm in terms of testing time remains a tie between decision trees and logistic regression.
