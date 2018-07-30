@@ -3,11 +3,6 @@ This section addresses important details about the implementation of the algorit
 
 
 
-\section{Definition of the Problem}
-The research discussed in this paper revolves around a real-world problem which involves predicting whether an applicant will accept an offer of admission to an undergraduate engineering program at a specific university given their application data. With this information, the admissions department will be able to better judge how many offers they should issue in order to prevent under- or over-enrolment.
-
-
-
 \section{Nature of the Data}
 The data being analyzed is undergraduate application information. Available features include Grade Point Average (GPA), high school attended, preferred language, location of residence, and more. To ensure the applicants' anonymity, personally identifying features such as location of residence have been encoded before being made available for this analysis. This is convenient since this encoding step would have had to be performed regardless. A complete list with more in-depth descriptions as well as which fields have been encoded can be found in Appendix \ref{app:applicationData}. The initial dimensionality of the data is quite large and even after preliminary cleaning of this data, there are still 32 features to consider.
 
@@ -19,12 +14,100 @@ Another important topic is the quantity and quality of the data. There are aroun
 
 
 
+\section{Descriptive Statistics}
+Descriptive statistics were computed in order to provide a more concrete description of the dataset. The description of each feature will take on different forms as appropriate in order to most clearly describe that feature. There are a few types of feature present in this dataset. One such type are categorical features. These features take on a value from a small set of discrete values. The next type of feature are identifiers. For example, the ID of a particular high school which could take on values like 25826 or 149. The last type of feature present in this study are numerical values. For example, the grade achieved in a particular course or an applicant's birth year.
+
+A good place to start is with the class distribution. Overall, 18030 applicants (72.68\%) did not accept an offer of admission whereas 6776 applicants (27.32\%) did accept an offer. Table \ref{tab:yearlyAcceptances} below also includes per year admission acceptance rates.
+
+\begin{table}[!hb]
+\begin{center}
+\begin{tabular}{c|c|c}
+	\textbf{Year}	&\textbf{\# of Applicants}	&\textbf{Acceptance \%}\\\hline
+	2009			&3340						&25.12\%\\
+	2010			&3313						&24.82\%\\
+	2011			&3574						&29.94\%\\
+	2012			&3512						&26.91\%\\
+	2013			&3784						&28.36\%\\
+	2014			&4052						&27.00\%\\
+	2015			&3231						&28.85\%
+\end{tabular}
+\end{center}
+\caption{Applicant counts and admission acceptances per year.}
+\label{tab:yearlyAcceptances}
+\end{table}
+
+Table \ref{tab:categoricalFeatures} describes the categorical features using their aggregated distributions across the available data for all years for whatever value they can take on.
+
+\begin{table}[!hb]
+\begin{center}
+\begin{tabular}{c|c|c|c|c|c}
+	\textbf{Feature}	&\textbf{0}	&\textbf{1}	&\textbf{2}	&\textbf{3}	&\textbf{4}\\\hline
+	Sex					&-			&79.83\%	&20.17\%	&-			&-\\
+	Immigration Status	&80.79\%	&11.59\%	&7.44\%		&0.14\%		&0.03\%\\
+	Mother Tongue		&-			&70.60\%	&28.62\%	&0.78\%		&-\\
+	Choice 1			&78.20\%	&21.80\%	&-			&-			&-\\
+	Choice 2			&70.40\%	&29.60\%	&-			&-			&-\\
+	Choice 3			&66.83\%	&33.17\%	&-			&-			&-\\
+	Choice 4			&81.33\%	&18.67\%	&-			&-			&-\\
+	Choice 5			&87.92\%	&12.08\%	&-			&-			&-
+\end{tabular}
+\end{center}
+\caption{Categorical features and their aggregated distributions.}
+\label{tab:categoricalFeatures}
+\end{table}
+
+Table \ref{tab:idFeatures} describes the identifier features using their minimum and maximum values as well as either their mode and its percentage or the average value of that feature.
+
+\begin{table}[!ht]
+\begin{center}
+\begin{tabular}{c|c|c|c|c|c}
+	\textbf{Feature}		&\textbf{Mode}	&\textbf{Mode \%}	&\textbf{Avg.}	&\textbf{Min.}	&\textbf{Max.}\\\hline
+	School ID				&-				&-					&282610			&149			&555938\\
+	School Region ID		&-				&-					&48694			&2795			&83993\\
+	Board ID				&-				&-					&29				&1				&98\\
+	Board Region ID			&61				&99.15\%			&-				&13				&84\\
+	Province of Residence	&-				&-					&97				&76				&98\\
+	Region of Residence		&-				&-					&28				&1				&98\\
+	County of Residence		&9987			&99.20\%			&-				&9987			&94986\\
+	Country of Residence	&9987			&80.79\%			&-				&9987			&99248\\
+	Citizenship				&97				&80.79\%			&-				&76				&98
+\end{tabular}
+\end{center}
+\caption{Identifier features and their statistical descriptions.}
+\label{tab:idFeatures}
+\end{table}
+
+Table \ref{tab:numericalFeatures} describes the numerical features using their average, standard deviation, minimum and maximum values. Birth year does not quite fit this mold however so it will be described briefly here. The minimum value is 78 and the maximum is 99. However, 99.32\% of them lie between 89 and 97.
+
+\begin{table}[!ht]
+\begin{center}
+\begin{tabular}{c|c|c|c|c}
+	\textbf{Feature}			&\textbf{Avg.}	&\textbf{Std. Dev.}	&\textbf{Min.}	&\textbf{Max.}\\\hline
+	Years of Ontario Secondary	&3.79			&0.93				&0				&9\\
+	Course Count				&7.56			&1.31				&4				&12\\
+	Total Credits				&752.63			&131.02				&300			&1300\\
+	Physics Grade				&83.37			&13.67				&0				&100\\
+	Chemistry Grade				&83.03			&12.83				&0				&100\\
+	Calculus Grade				&84.97			&13.55				&0				&100\\
+	English Grade				&83.07			&7.96				&0				&100\\
+	Average 1					&683.96			&359.39				&0				&997\\
+	Average 2					&873.34			&76.88				&0				&998
+\end{tabular}
+\end{center}
+\caption{Numerical features and their statistical descriptions.}
+\label{tab:numericalFeatures}
+\end{table}
+
 \section{Feature Engineering}
-Success of machine learning based analyses are often heavily reliant on a combination of the quality of feature engineering, hyperparameter tuning, and certain model specific techniques (the optimization algorithm used to train the model for example). Therefore it is prudent to discuss the handling of these facets of this analysis. There were three feature engineering techniques used during this analysis that are important to discuss. Every potential technique (and combination of techniques) was tried in tandem with each algorithm and to ensure that the analysis was comprehensive. The techniques tested include data balancing, feature scaling, and KPCA (discussed in the Algorithms section).
+Success of machine learning based analyses are often heavily reliant on a combination of the quality of feature engineering, hyperparameter tuning, and certain model specific techniques (the optimization algorithm used to train the model for example). Therefore it is prudent to discuss the handling of these facets of this analysis. There were three feature engineering techniques used during this analysis that are important to discuss. Every potential technique (and combination of techniques) was tried in tandem with each algorithm and to ensure that the analysis was comprehensive. The techniques tested include data balancing, normalization of the data, and KPCA (discussed in the Algorithms section).
 
-Data balancing was achieved by evening out the number of samples of each class. Since the typical ratio of acceptances:non-acceptances is about 1:3, the non-acceptance subset of the data was subsamples in order to force a 1:1 ratio. Interestingly, data balancing in this way significantly harmed the performance of every model. For example, considering the SVM model for the year 2015, the final prediction error without balancing was about 2\% while the error with balancing was over 56\%. This is likely due to the importance of preserving the original proportion of acceptances to non-acceptances which introduces a beneficial bias for the algorithms to learn \cite{imbalanceBias}.
+Data balancing was achieved by evening out the number of samples of each class. Since the typical ratio of acceptances to non-acceptances is about 1:3, the non-acceptance subset of the data was under-sampled in order to force a 1:1 ratio. Interestingly, balancing the data in this way significantly harmed the performance of every model. For example, considering the SVM model for the year 2015, the final prediction error without balancing was about 2\% while the error with balancing was over 56\%. This is likely due to the importance of preserving the original proportion of acceptances to non-acceptances which introduces a beneficial bias for the algorithms to learn \cite{imbalanceBias}.
 
-In this case, feature scaling refers to modifying the values of a feature to a standardized form by centering the mean about zero and forcing a unit variance. This can often improve the effectiveness of optimization algorithms which in turn can improve the quality of the models. Although this technique was experimented with for each of the models, the only algorithm which benefitted from feature scaling was the neural networks. The other algorithms tended to perform significantly worse with scaled features. An interesting peculiarity is that scaling the testing data separate from the training data tended to perform slightly better than using the same scaling measures on the testing set that were applied to the training set. In this specific case, this could be due to factors such as grade inflation -- it is more important to measure the applicant's grade relevant to the current year's grades rather than previous years' grades.
+Normalization refers to the process of modifying the values of a feature by centering the mean about zero and forcing a unit variance for that feature when inspected across all samples. This can often improve the effectiveness of optimization algorithms which in turn can improve the quality of the resulting models. Another added benefit is that the speed of convergence can be improved as a result of reducing the geometric distance from the minima. This allows a similar step size to converge quicker than it would with the original data.
+
+Another benefit of normalization is that it forces the variables to adhere to the same range of values. The reason this benefits some algorithms can be explained using the following example. If one variable takes values in the scale of thousands and another takes values in the scale of percentages, the large value can have an artificially magnified influence on the results. The smaller value's contribution could then be shadowed even if it happened to be a more important predictor. However  it is prudent to analyze the impact it has on the models being trained before indiscriminately applying normalization.
+
+Although this technique was experimented with for each of the models, the only algorithm which benefitted from using normalized data were the neural networks. The other algorithms performed significantly worse with normalized data. An interesting peculiarity is that normalizing the testing data separate from the training data tended to perform slightly better than using the same normalization measures on the testing set that were applied to the training set. In this specific case, this could be due to factors such as grade inflation -- it is more important to measure the applicant's grade relevant to the current year's grades rather than previous years' grades.
 
 The KPCA algorithm is explained in detail in the Algorithms section. Characteristics specific to this analysis include the kernel used and how many principal components were calculated. Several standard kernel functions were experimented with including radial basis function (rbf), linear, sigmoid, cosine, and polynomial. For each kernel, an attempt was made to adjust the available hyperparameters available to that kernel function. All but the polynomial kernel resulted in every model performing anywhere from marginally to significantly worse. The polynomial kernel of degree 3 showed some positive results but the polynomial kernel of degree 2 performed even better. Further, extracting 5 principal components performed very well. Extracting 9 performed marginally better, but the combination of using more components and taking significantly longer to fit lead to the selection of just 5 principal components. Considering these results, the final KPCA transformation used a polynomial kernel of degree 2 with 5 principal components. A further indicator that this is a strong choice is that it consistently performed the best across the various machine learning algorithms. The two algorithms that were found to benefit from the KPCA transformation were k-NN and Naive Bayes. The KPCA transformation gave an average improvement of 0.18\% and 0.06\% to the random forest and decision tree algorithms, respectively. However, considering the added time required to compute this transformation as well as the loss of interpretability due to transforming the features, KPCA was not used in the final versions of these models.
 
@@ -33,9 +116,9 @@ The KPCA algorithm is explained in detail in the Algorithms section. Characteris
 \section{Algorithm Implementation}
 As mentioned previously, the specifics of feature engineering, hyperparameter tuning, and certain model specific techniques used are important factors to discuss when describing an analysis. This section will now describe the latter two of these factors.
 
-Hyperparameter tuning was handled in a manual fashion. Various combinations of hyperparameters from one extreme to the other of their respective ranges were used to train an initial set of models. For example, if a hyperparameter could take on values between 0 and 20, the values 0, 5, 10, 15, and 20 would be tried first. If 5 and 10 produced the best results, then 6, 7, 8, and 9 would be tried. This process was repeated until modifying the hyperparameter stopped having an effect. Depending on what's appropriate for the specific hyperparameter, the efficacy of these selections can then be measured by inspecting the final model accuracy, ensuring that the training algorithm actually converges, or measuring the algorithm's training and testing times.
+Hyperparameter tuning was handled in a manual fashion. Various combinations of hyperparameters from one extreme to the other of their respective ranges were used to train an initial set of models. For example, if a hyperparameter could take on values between 0 and 20, the values 0, 5, 10, 15, and 20 would be tried first. If 5 and 10 produced the best results, then 6, 7, 8, and 9 would be tried. This process was repeated until modifying the hyperparameter stopped having an effect. Depending on what's appropriate for the specific hyperparameter, the efficacy of these selections can then be measured by inspecting the final model accuracy, ensuring that the training algorithm actually converges, or measuring the algorithm's training and execution times.
 
-Some of the hyperparameters available to certain models must be discussed in this paper since they can affect the training and testing times of the algorithms. In particular, these include the maximum depth for the regression tree algorithms, the number of trees used in the ensemble algorithms, the number of neighbours considered in k-NN and the data structure used to find those neighbours, the size of the neural network, and the step size of the optimization algorithms. The optimal maximum depth was a much stricter 6 for the ensemble methods compared to 10 for the singular decision tree model. This makes intuitive sense since the ensemble methods are meant to benefit from utilizing weaker learners relative to the singular method. Both ensemble methods ended up using 200 estimators. This count was selected by finding the least number of estimators which could still arrive at an optimal result. k-NN looked at the 9 nearest neighbours and used a distance-weighted metric to calculate the votes of those neighbours. Further, a k-d tree of size 30 was used by this algorithm in order to reduce the lookup time of the nearest neighbours. The neural network used two hidden layers, each containing 20 nodes. Most of the models performed nominally with the default learning rate of 0.1 except for the gradient boosting trees. For that algorithm a smaller learning rate of 0.01 was used.
+Some of the hyperparameters available to certain models must be discussed in this paper since they can affect the training and execution times of the algorithms. In particular, these include the maximum depth for the regression tree algorithms, the number of trees used in the ensemble algorithms, the number of neighbours considered in k-NN and the data structure used to find those neighbours, the size of the neural network, and the step size of the optimization algorithms. The optimal maximum depth was a much stricter 6 for the ensemble methods compared to 10 for the singular decision tree model. This makes intuitive sense since the ensemble methods are meant to benefit from utilizing weaker learners relative to the singular method. Both ensemble methods ended up using 200 estimators. This count was selected by finding the least number of estimators which could still arrive at an optimal result. k-NN looked at the 9 nearest neighbours and used a distance-weighted metric to calculate the votes of those neighbours. Further, a k-d tree of size 30 was used by this algorithm in order to reduce the lookup time of the nearest neighbours. The neural network used two hidden layers, each containing 20 nodes. Combinations of one to three hidden layers with varying numbers of nodes at each layer were also experimented with before arriving at the best-performing hidden layer selection mentioned above. Most of the models performed nominally with the default learning rate of 0.1 except for the gradient boosting trees. For that algorithm a smaller learning rate of 0.01 was used.
 
 
 

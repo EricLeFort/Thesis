@@ -249,8 +249,10 @@
 \pagestyle{fancy}
 
 
+
 \chapter*{Abstract}
-The selection of machine learning algorithm used to solve a problem is an important choice. This paper outlines research measuring three performance metrics for eight different algorithms on a real-world dataset. The algorithms that were tested are k-nearest neighbours, decision trees, random forests, gradient tree boosting, logistic regression, naive bayes, support vector machines, and artificial neural networks. These algorithms were compared in terms of accuracy, training time, and execution time.
+The selection of machine learning algorithm used to solve a problem is an important choice. This paper outlines research measuring three performance metrics for eight different algorithms on a prediction task involving undergraduate admissions data. The algorithms that were tested are k-nearest neighbours, decision trees, random forests, gradient tree boosting, logistic regression, naive bayes, support vector machines, and artificial neural networks. These algorithms were compared in terms of accuracy, training time, and execution time.
+
 
 
 \newpage
@@ -270,7 +272,7 @@ Firstly I'd like to thank my mother, Jack, and my grandmother for continually go
 \pagenumbering{arabic}
 \pagestyle{fancy}
 
-\include{chapters/ch1}%TODO migrate the content to these chapters
+\include{chapters/ch1}
 \setcounter{figure}{0}
 \setcounter{equation}{0}
 \setcounter{table}{0}
@@ -466,7 +468,7 @@ Firstly I'd like to thank my mother, Jack, and my grandmother for continually go
 
 
 
-\chapter{Model Testing Times}
+\chapter{Model Execution Times}
 \label{app:testingTimes}
 \vspace*{\fill}
 \begin{table}[!hb]
@@ -500,7 +502,7 @@ Firstly I'd like to thank my mother, Jack, and my grandmother for continually go
 	24					&0.015575			&0.000797				&0.079523		&0.000662\\\hline
 	25					&0.014444			&0.000780				&0.085377		&0.000671\\\hline
 \end{tabular}
-\caption{Recorded testing times (in seconds).}
+\caption{Recorded execution times (in seconds).}
 \end{center}
 \end{table}
 \vspace*{\fill}
@@ -537,7 +539,7 @@ Firstly I'd like to thank my mother, Jack, and my grandmother for continually go
 	24					&0.001539				&0.002106					&0.047704				&0.083208		&1.298361\\\hline
 	25					&0.001733				&0.002159					&0.052760				&0.089914		&1.331161\\\hline
 \end{tabular}
-\caption{Recorded testing times (in seconds).}
+\caption{Recorded execution times (in seconds).}
 \end{center}
 \end{table}
 \vspace*{\fill}
